@@ -24,7 +24,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: DyslexiaHome(),
-      theme: ThemeData.dark(),
+      theme: ThemeData.light(),
     );
   }
 }

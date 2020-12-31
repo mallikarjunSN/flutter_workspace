@@ -1,2 +1,4 @@
 git pull origin master/main -- pull 
 
+
+git checkout -b branchName  //  -b refers to the new Branch
