@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hello/home.dart';
-// import 'package:hello/input.dart';
-// import 'package:hello/page_four.dart';
+// import 'package:hello/home.dart';
+import 'package:hello/login.dart';
 // import 'package:hello/temp.dart';
+// import 'package:hello/input.dart';
 // import 'package:hello/page_four.dart';
 // import 'package:hello/tic_tac.dart';
 
@@ -23,8 +23,9 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: DyslexiaHome(),
+      home: Login(),
       theme: ThemeData.light(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
