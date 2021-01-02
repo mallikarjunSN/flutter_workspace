@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/auth.dart';
 
 class DyslexiaHome extends StatefulWidget {
   @override
@@ -39,6 +40,8 @@ class DyslexiaHomeState extends State<DyslexiaHome> {
       ],
     ),
   );
+
+  static AuthService _authService = AuthService();
 
   List<Widget> _children = [
     Container(
@@ -84,9 +87,25 @@ class DyslexiaHomeState extends State<DyslexiaHome> {
       width: double.infinity,
       height: 650,
       child: Center(
-          child: Text(
-        "Account settings",
-        style: TextStyle(color: Colors.white),
+          child: Column(
+        children: [
+          Text(
+            "Account settings",
+            style: TextStyle(color: Colors.white),
+          ),
+          SizedBox(
+            height: 50,
+            child: Builder(
+              builder: (context) => RaisedButton(
+                color: Colors.white,
+                child: Text("signout"),
+                onPressed: () async {
+                  _authService.signOut(context);
+                },
+              ),
+            ),
+          )
+        ],
       )),
     ),
   ];
@@ -100,7 +119,7 @@ class DyslexiaHomeState extends State<DyslexiaHome> {
         children: [
           Center(
             child: _children[selectedIndex],
-          )
+          ),
         ],
       )),
       bottomNavigationBar: BottomNavigationBar(

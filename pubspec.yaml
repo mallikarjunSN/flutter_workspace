@@ -24,6 +24,10 @@ dependencies:
   flutter:
     sdk: flutter
   font_awesome_flutter: ^8.10.1
+  firebase_core: ^0.5.3
+  firebase_database: ^4.4.0
+  firebase_auth: ^0.18.4+1
+
   
 
 
