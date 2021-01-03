@@ -1,4 +1,11 @@
-git pull origin master/main -- pull 
+git pull origin master/main -- pull
 
 
-git checkout -b branchName  //  -b refers to the new Branch
+
+"origin " is the alias to github repo
+
+
+git push origin <branchName>  // push to branch branchName
+
+
+git checkout -b <branchName>  //  -b refers to the new Branch
