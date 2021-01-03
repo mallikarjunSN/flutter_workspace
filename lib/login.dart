@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/auth.dart';
+import 'package:hello/home.dart';
 import 'package:hello/signup.dart';
 
 class Login extends StatefulWidget {
@@ -122,6 +123,8 @@ class LoginState extends State<Login> {
 
   AuthService _auth = AuthService();
 
+  String status = " ";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,18 +132,29 @@ class LoginState extends State<Login> {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        color: Colors.blue[900],
+        color: Colors.blue[800],
         child: Column(
-          // mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              FontAwesomeIcons.userLock,
-              size: 60,
-              color: Colors.white,
+            Text(
+              "welcome to",
+              style: TextStyle(color: Colors.white),
             ),
-            SizedBox(
-              height: 25,
+            Text(
+              "COMRADE App",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30),
+            ),
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Icon(
+                FontAwesomeIcons.solidLaugh,
+                size: 80,
+                color: Colors.yellow[800],
+              ),
             ),
             Builder(builder: (context) {
               return Form(
@@ -153,7 +167,7 @@ class LoginState extends State<Login> {
                           decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.email,
-                                color: Colors.blue,
+                                color: Colors.yellow[800],
                                 size: 30,
                               ),
                               filled: true,
@@ -185,7 +199,7 @@ class LoginState extends State<Login> {
                               hintText: "password",
                               prefixIcon: Icon(
                                 Icons.lock,
-                                color: Colors.blue,
+                                color: Colors.yellow[800],
                                 size: 30,
                               ),
                               border: OutlineInputBorder(
@@ -208,8 +222,6 @@ class LoginState extends State<Login> {
                         SizedBox(
                           height: 25,
                         ),
-                        // SelectAction()
-
                         (MediaQuery.of(context).orientation ==
                                 Orientation.portrait
                             ? Column(
@@ -228,8 +240,24 @@ class LoginState extends State<Login> {
                                             if (_loginKey.currentState
                                                 .validate()) {
                                               print("valid");
+                                              setState(() {
+                                                status = "Signing in...";
+                                              });
                                               // Future<bool> status =
-                                              _auth.signIn(email, password,context);
+                                              await _auth
+                                                  .signIn(email, password)
+                                                  .then((value) {
+                                                setState(() {
+                                                  status = value;
+                                                });
+                                                if (status == "success") {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              DyslexiaHome()));
+                                                }
+                                              });
                                             }
                                           },
                                           child: Text(
@@ -237,18 +265,38 @@ class LoginState extends State<Login> {
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 25),
+                                                fontSize: 30,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                   SizedBox(
-                                    height: 50,
+                                    height: 10,
+                                  ),
+                                  (status == "Signing in..."
+                                      ? CircularProgressIndicator(
+                                          strokeWidth: 5,
+                                          backgroundColor: Colors.white,
+                                        )
+                                      : Text("")),
+                                  SizedBox(
+                                    height: 10,
                                   ),
                                   Text(
-                                    "",
-                                    style: TextStyle(color: Colors.red),
+                                    status,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        color: (status == "success" ||
+                                                status == "Signing in..."
+                                            ? Colors.white
+                                            : Colors.red)),
+                                  ),
+                                  SizedBox(
+                                    height: 50,
                                   ),
                                   Text(
                                     "New to App??",

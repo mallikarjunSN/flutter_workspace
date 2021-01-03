@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/auth.dart';
+import 'package:hello/login.dart';
 
 class DyslexiaHome extends StatefulWidget {
   @override
@@ -100,7 +101,12 @@ class DyslexiaHomeState extends State<DyslexiaHome> {
                 color: Colors.white,
                 child: Text("signout"),
                 onPressed: () async {
-                  _authService.signOut(context);
+                  _authService.signOut();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Login(),
+                      ));
                 },
               ),
             ),

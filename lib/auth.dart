@@ -1,36 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:hello/home.dart';
-import 'package:hello/login.dart';
 
 class AuthService {
   FirebaseAuth auth = FirebaseAuth.instance;
   User currentUser;
-  Future signIn(String email, String password, BuildContext context) async {
+  Future<String> signIn(String email, String password) async {
     try {
-      UserCredential user = await auth.signInWithEmailAndPassword(
+      UserCredential userCred = await auth.signInWithEmailAndPassword(
           email: email, password: password);
       print("success bro");
-      // auth.cre
-      print("user got : ${user.user}");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => DyslexiaHome()));
-
-      currentUser = user.user;
-    } catch (e) {
-      print("Has some error ${e.toString()}");
+      currentUser = userCred.user;
+      return "success";
+    } on FirebaseAuthException catch (e) {
+      return e.message;
     }
   }
 
-  Future<void> signOut(BuildContext context) {
+  Future<String> signOut() async {
     try {
       auth.signOut();
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-    } catch (e) {
-      return null;
+      return "success";
+    } on FirebaseAuthException catch (e) {
+      return e.message;
     }
-
-    return null;
   }
 }
