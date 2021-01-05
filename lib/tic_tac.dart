@@ -10,6 +10,7 @@ class TicTac extends StatefulWidget {
 class TicTacState extends State<TicTac> {
   List<Widget> blocks = new List<Widget>();
 
+  String message;
   // ClipRRect til = new
 
   BorderRadius ticBorder(int i) {
@@ -168,14 +169,37 @@ class TicTacState extends State<TicTac> {
   Widget build(BuildContext context) {
     or = MediaQuery.of(context).orientation;
 
+    message = ModalRoute.of(context).settings.arguments;
+
     print(or);
 
     return Scaffold(
-        // appBar: AppBar(
-        //   title: Align(alignment: Alignment.center,child: Text(""),),
-        // ),
-        body: SafeArea(
-      child: getContent(or),
-    ));
+        appBar: AppBar(
+          title: Align(
+            alignment: Alignment.center,
+            child: Text(message),
+          ),
+        ),
+        body: Center(
+          child: ListView.builder(
+              padding: EdgeInsets.all(10),
+              itemCount: 25,
+              itemBuilder: (context, count) {
+                return Container(
+                  color: Colors.blue[(count + 1) % 10 * 100],
+                  height: 60,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text("count $count"),
+                      FloatingActionButton(
+                        child: Icon(Icons.mic),
+                        onPressed: () {},
+                      )
+                    ],
+                  ),
+                );
+              }),
+        ));
   }
 }

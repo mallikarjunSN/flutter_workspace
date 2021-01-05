@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hello/home.dart';
 import 'package:hello/login.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hello/tic_tac.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,34 @@ class MyAppState extends State<MyApp> {
     user = _auth.currentUser;
     return MaterialApp(
       home: (user == null ? Login() : DyslexiaHome()),
+      // initialRoute: '/',
+      routes: {
+        // '/': (context) {
+        //   return (_auth.currentUser == null ? Login() : DyslexiaHome());
+        // },
+        '/dyslexiaHome': (context) => DyslexiaHome(),
+        '/tictac': (context) => TicTac()
+      },
+      home: FutureBuilder(
+        future: fbApp,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            print("you have an error ${snapshot.error.toString()} ");
+            return Text("Something went wrong");
+          } else if (snapshot.hasData) {
+            _auth = FirebaseAuth.instance;
+            user = _auth.currentUser;
+            if (user == null)
+              return Login();
+            else
+              return DyslexiaHome();
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
       theme: ThemeData.light(),
       debugShowCheckedModeBanner: false,
     );

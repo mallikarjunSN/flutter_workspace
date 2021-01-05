@@ -180,7 +180,7 @@ class LoginState extends State<Login> {
                               contentPadding: EdgeInsets.all(10)),
                           validator: (value) {
                             if (value.isEmpty) {
-                              return "please enter some value";
+                              return "please enter an email address";
                             }
                             return null;
                           },
@@ -211,7 +211,7 @@ class LoginState extends State<Login> {
                               contentPadding: EdgeInsets.all(10)),
                           validator: (value) {
                             if (value.isEmpty) {
-                              return "please enter some value";
+                              return "please enter password";
                             }
                             return null;
                           },
