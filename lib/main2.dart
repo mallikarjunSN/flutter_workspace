@@ -1,12 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/home.dart';
+// import 'package:hello/home.dart';
 import 'package:hello/login.dart';
+// import 'package:hello/temp.dart';
+// import 'package:hello/input.dart';
+// import 'package:hello/page_four.dart';
+// import 'package:hello/tic_tac.dart';\
 import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -18,9 +23,9 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  // final Future<FirebaseApp> fbApp = Firebase.initializeApp();
+  final Future<FirebaseApp> fbApp = Firebase.initializeApp();
 
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth; // = FirebaseAuth.instance;
 
   User user;
 
@@ -30,9 +35,27 @@ class MyAppState extends State<MyApp> {
   // Set<ThemeData> themes = {ThemeData.light(), ThemeData.dark()};
   @override
   Widget build(BuildContext context) {
-    user = _auth.currentUser;
     return MaterialApp(
-      home: (user == null ? Login() : DyslexiaHome()),
+      home: FutureBuilder(
+        future: fbApp,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            print("you have an error ${snapshot.error.toString()} ");
+            return Text("Something went wrong");
+          } else if (snapshot.hasData) {
+            _auth = FirebaseAuth.instance;
+            user = _auth.currentUser;
+            if (user == null)
+              return Login();
+            else
+              return DyslexiaHome();
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
       theme: ThemeData.light(),
       debugShowCheckedModeBanner: false,
     );
