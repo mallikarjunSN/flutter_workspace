@@ -18,7 +18,18 @@ class SignupState extends State<Signup> {
         actions: [],
       ),
       body: Center(
-        child: Text("Welcome to signup Page"),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text("Welcome to signup Page"),
+            RaisedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/tictac',
+                      arguments: "Hello message");
+                },
+                child: Text("goto Tic-Tac-Toe")),
+          ],
+        ),
       ),
     );
   }

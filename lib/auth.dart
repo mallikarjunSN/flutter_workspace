@@ -11,7 +11,7 @@ class AuthService {
       currentUser = userCred.user;
       return "success";
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return e.code;
     }
   }
 

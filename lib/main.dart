@@ -8,6 +8,7 @@ import 'package:hello/login.dart';
 // import 'package:hello/page_four.dart';
 // import 'package:hello/tic_tac.dart';\
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hello/tic_tac.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,14 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // initialRoute: '/',
+      routes: {
+        // '/': (context) {
+        //   return (_auth.currentUser == null ? Login() : DyslexiaHome());
+        // },
+        '/dyslexiaHome': (context) => DyslexiaHome(),
+        '/tictac': (context) => TicTac()
+      },
       home: FutureBuilder(
         future: fbApp,
         builder: (context, snapshot) {
