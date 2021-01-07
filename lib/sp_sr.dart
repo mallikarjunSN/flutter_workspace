@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:speech_recognition/speech_recognition.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'dart:async';
@@ -49,19 +48,19 @@ class _VoiceHomeState extends State<VoiceHome> {
                   ),
                 ),
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  child: ButtonBar(
+                    alignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      RaisedButton(
-                        child: Text('Start'),
+                      FloatingActionButton(
+                        child: Icon(Icons.mic),
                         onPressed: startListening,
                       ),
-                      RaisedButton(
-                        child: Text('Stop'),
+                      FloatingActionButton(
+                        child: Icon(Icons.stop),
                         onPressed: stopListening,
                       ),
-                      RaisedButton(
-                        child: Text('Cancel'),
+                      FloatingActionButton(
+                        child: Icon(Icons.cancel),
                         onPressed: cancelListening,
                       ),
                     ],

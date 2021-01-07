@@ -151,9 +151,9 @@ class LoginState extends State<Login> {
             Padding(
               padding: EdgeInsets.all(20),
               child: Icon(
-                FontAwesomeIcons.solidLaugh,
+                FontAwesomeIcons.android,
                 size: 80,
-                color: Colors.yellow[800],
+                color: Colors.green,
               ),
             ),
             Builder(builder: (context) {
@@ -164,10 +164,11 @@ class LoginState extends State<Login> {
                     child: Column(
                       children: [
                         TextFormField(
+                          style: TextStyle(fontSize: 20),
                           decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.email,
-                                color: Colors.yellow[800],
+                                color: Colors.blue,
                                 size: 30,
                               ),
                               filled: true,
@@ -192,6 +193,7 @@ class LoginState extends State<Login> {
                           height: 20,
                         ),
                         TextFormField(
+                          style: TextStyle(fontSize: 20),
                           obscureText: true,
                           decoration: InputDecoration(
                               filled: true,
@@ -199,7 +201,7 @@ class LoginState extends State<Login> {
                               hintText: "password",
                               prefixIcon: Icon(
                                 Icons.lock,
-                                color: Colors.yellow[800],
+                                color: Colors.blue,
                                 size: 30,
                               ),
                               border: OutlineInputBorder(

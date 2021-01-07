@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:hello/custom_dialog.dart';
+import 'package:hello/custom_dialog.dart';
 import 'package:hello/sp_sr.dart';
+// import 'package:hello/sp_sr.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class SignupState extends State<Signup> {
             child: Text("CD"),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VoiceHome()));
+                  MaterialPageRoute(builder: (context) => CustomDialog()));
             },
           ),
         ));
