@@ -94,124 +94,128 @@ class _CustomDialogState extends State<CustomDialog> {
           title: Text('Confidence'),
           centerTitle: true,
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                "Text to be spoken",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20),
-              ),
-              Card(
-                elevation: 25,
-                borderOnForeground: true,
-                margin: EdgeInsets.all(10),
-                color: Colors.cyan,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: Text(
-                  originalWord,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.yellow[800]),
-                ),
-              ),
-              Container(
-                  child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  FloatingActionButton(
-                    elevation: 20,
-                    heroTag: null,
-                    backgroundColor: Colors.white,
-                    onPressed: stopListening,
-                    child: Icon(
-                      Icons.stop,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  AvatarGlow(
-                    endRadius: 60,
-                    animate: speech.isListening,
-                    glowColor: Colors.red,
-                    duration: Duration(milliseconds: 1000),
-                    child: FloatingActionButton(
-                        elevation: 20,
-                        backgroundColor: Colors.white,
-                        mini: false,
-                        heroTag: null,
-                        child: Icon(
-                          FontAwesomeIcons.microphone,
-                          color: Colors.blue,
-                          size: 25,
-                        ),
-                        onPressed: startListening),
-                  ),
-                  FloatingActionButton(
-                    elevation: 20,
-                    heroTag: null,
-                    backgroundColor: Colors.white,
-                    onPressed: cancelListening,
-                    child: Icon(
-                      Icons.cancel,
-                      color: Colors.blue,
-                    ),
-                  )
-                ],
-              )),
-              SizedBox(
-                height: 10,
-              ),
-              Text(
-                _text,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black, fontSize: 20),
-              ),
-              SizedBox(
-                height: 200,
-                width: 200,
-                child: Stack(
-                  fit: StackFit.expand,
+        body: _hasSpeech
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Center(
-                      child: Container(
-                        height: 150,
-                        width: 150,
-                        // color: Colors.yellow,
-                        decoration: BoxDecoration(
-                            color: Colors.yellow[800],
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(75))),
-                        child: CircularProgressIndicator(
-                          value: accuracy,
-                          strokeWidth: 15,
-                          backgroundColor: Colors.grey.shade400,
-                        ),
+                    Text(
+                      "Text to be spoken",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Card(
+                      elevation: 25,
+                      borderOnForeground: true,
+                      margin: EdgeInsets.all(10),
+                      color: Colors.cyan,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                      child: Text(
+                        originalWord,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.yellow[800]),
                       ),
                     ),
-                    Center(
-                      child: Text(
-                        "${(accuracy * 100).toStringAsPrecision(3)} %",
-                        style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                    Container(
+                        child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        FloatingActionButton(
+                          elevation: 20,
+                          heroTag: null,
+                          backgroundColor: Colors.white,
+                          onPressed: stopListening,
+                          child: Icon(
+                            Icons.stop,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        AvatarGlow(
+                          endRadius: 60,
+                          animate: speech.isListening,
+                          glowColor: Colors.red,
+                          duration: Duration(milliseconds: 1000),
+                          child: FloatingActionButton(
+                              elevation: 20,
+                              backgroundColor: Colors.white,
+                              mini: false,
+                              heroTag: null,
+                              child: Icon(
+                                FontAwesomeIcons.microphone,
+                                color: Colors.blue,
+                                size: 25,
+                              ),
+                              onPressed: startListening),
+                        ),
+                        FloatingActionButton(
+                          elevation: 20,
+                          heroTag: null,
+                          backgroundColor: Colors.white,
+                          onPressed: cancelListening,
+                          child: Icon(
+                            Icons.cancel,
+                            color: Colors.blue,
+                          ),
+                        )
+                      ],
+                    )),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      _text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black, fontSize: 20),
+                    ),
+                    SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Center(
+                            child: Container(
+                              height: 150,
+                              width: 150,
+                              // color: Colors.yellow,
+                              decoration: BoxDecoration(
+                                  color: Colors.yellow[800],
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(75))),
+                              child: CircularProgressIndicator(
+                                value: accuracy,
+                                strokeWidth: 15,
+                                backgroundColor: Colors.grey.shade400,
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              "${(accuracy * 100).toStringAsPrecision(3)} %",
+                              style: TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                          )
+                        ],
                       ),
-                    )
+                    ),
+                    Text(accuracy.toStringAsPrecision(3)),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(speech.isListening ? "Listening" : "Not listening"),
                   ],
                 ),
-              ),
-              Text(accuracy.toStringAsPrecision(3)),
-              SizedBox(
-                height: 10,
-              ),
-              Text(speech.isListening ? "Listening" : "Not listening"),
-            ],
-          ),
-        ));
+              )
+            : Center(
+                child: Text("Please Enable the permission for audio"),
+              ));
   }
 }

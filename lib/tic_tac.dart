@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/custom_dialog.dart';
 
 class TicTac extends StatefulWidget {
   @override
@@ -183,19 +185,28 @@ class TicTacState extends State<TicTac> {
         body: Center(
           child: ListView.builder(
               padding: EdgeInsets.all(10),
-              itemCount: 25,
+              itemCount: 10,
               itemBuilder: (context, count) {
                 return Container(
                   color: Colors.blue[(count + 1) % 10 * 100],
-                  height: 60,
+                  height: 100,
+                  margin: EdgeInsets.only(top: 5, bottom: 5),
+                  padding: EdgeInsets.all(10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text("count $count"),
+                      Text("count ${count + 1}"),
                       FloatingActionButton(
                         child: Icon(Icons.mic),
-                        onPressed: () {},
-                      )
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CustomDialog(),
+                              ));
+                        },
+                        heroTag: null,
+                      ),
                     ],
                   ),
                 );

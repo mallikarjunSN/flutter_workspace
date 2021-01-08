@@ -1,10 +1,8 @@
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/auth.dart';
-import 'package:hello/home.dart';
 import 'package:hello/signup.dart';
+import 'package:hello/temp.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -164,6 +162,7 @@ class LoginState extends State<Login> {
                     child: Column(
                       children: [
                         TextFormField(
+                          keyboardType: TextInputType.emailAddress,
                           style: TextStyle(fontSize: 20),
                           decoration: InputDecoration(
                               prefixIcon: Icon(
@@ -253,11 +252,12 @@ class LoginState extends State<Login> {
                                                   status = value;
                                                 });
                                                 if (status == "success") {
-                                                  Navigator.push(
+                                                  Navigator.pushReplacement(
                                                       context,
                                                       MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              DyslexiaHome()));
+                                                          builder: (BuildContext
+                                                                  context) =>
+                                                              Temp()));
                                                 }
                                               });
                                             }
