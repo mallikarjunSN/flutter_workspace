@@ -2,6 +2,7 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/progress.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -84,11 +85,36 @@ class _CustomDialogState extends State<CustomDialog> {
     });
   }
 
-  String originalWord = "speech recognition is really awesome";
+  String originalWord;
   double accuracy = 0;
+
+  UserProgress up = UserProgress();
+
+  void updateProgress(double accuracy) {
+    Attempt attempt = Attempt(originalWord, lastWords, accuracy);
+    // try {
+    if (UserProgress.attempts.containsKey(originalWord) == false) {
+      UserProgress.attempts.putIfAbsent(originalWord, () => attempt);
+      print("present");
+    } else {
+      UserProgress.attempts.update(originalWord, (value) => attempt);
+      print("absent");
+    }
+    // } catch (e) {
+    //   print(e);
+    // }
+
+    // UserProgress.attempts.forEach((key, value) {
+    //   print("$key : ${value.accuracy}\n");
+    // });
+    UserProgress.update();
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
+    originalWord = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Confidence'),
@@ -97,19 +123,20 @@ class _CustomDialogState extends State<CustomDialog> {
         body: _hasSpeech
             ? Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Text to be spoken",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 20),
                     ),
-                    Card(
-                      elevation: 25,
-                      borderOnForeground: true,
+                    Container(
                       margin: EdgeInsets.all(10),
-                      color: Colors.cyan,
-                      shape: RoundedRectangleBorder(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: Colors.cyan,
                           borderRadius: BorderRadius.all(Radius.circular(20))),
                       child: Text(
                         originalWord,
@@ -211,6 +238,11 @@ class _CustomDialogState extends State<CustomDialog> {
                       height: 10,
                     ),
                     Text(speech.isListening ? "Listening" : "Not listening"),
+                    RaisedButton(
+                        child: Text("submit"),
+                        onPressed: () {
+                          updateProgress(accuracy);
+                        })
                   ],
                 ),
               )

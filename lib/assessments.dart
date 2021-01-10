@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/progress.dart';
 import 'package:hello/tic_tac.dart';
+import 'package:hello/typing.dart';
+import 'package:hello/words.dart';
 
 class Assessment extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class _AssessmentState extends State<Assessment> {
 
   int currentPage = 0;
 
+  int asmtType; //
+
   List<IconData> icons = [
     Icons.child_care,
     Icons.face,
@@ -24,17 +29,22 @@ class _AssessmentState extends State<Assessment> {
 
   @override
   Widget build(BuildContext context) {
+    asmtType = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         backgroundColor: Colors.amber[300],
         appBar: AppBar(
+          toolbarHeight: 65,
           title:
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Text(
-              stages.elementAt(currentPage),
+              (asmtType == 1
+                  ? "Reading \n${stages.elementAt(currentPage)}"
+                  : "Typing \n${stages.elementAt(currentPage)}"),
               style: TextStyle(
-                  fontSize: 35,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue[800]),
+              textAlign: TextAlign.center,
             ),
             Icon(
               icons.elementAt(currentPage),
@@ -60,7 +70,10 @@ class _AssessmentState extends State<Assessment> {
               margin: EdgeInsets.only(top: 10, right: 10, left: 10, bottom: 25),
               height: double.infinity,
               width: double.infinity,
-              child: LevelHome(stage: stages.elementAt(currentPage)),
+              child: LevelHome(
+                stage: stages.elementAt(currentPage),
+                type: asmtType,
+              ),
             ),
             Container(
               decoration: BoxDecoration(
@@ -70,7 +83,10 @@ class _AssessmentState extends State<Assessment> {
               margin: EdgeInsets.only(top: 10, right: 10, left: 10, bottom: 25),
               height: double.infinity,
               width: double.infinity,
-              child: LevelHome(stage: stages.elementAt(currentPage)),
+              child: LevelHome(
+                stage: stages.elementAt(currentPage),
+                type: asmtType,
+              ),
             ),
             Container(
               decoration: BoxDecoration(
@@ -80,7 +96,10 @@ class _AssessmentState extends State<Assessment> {
               margin: EdgeInsets.only(top: 10, right: 10, left: 10, bottom: 25),
               height: double.infinity,
               width: double.infinity,
-              child: LevelHome(stage: stages.elementAt(currentPage)),
+              child: LevelHome(
+                stage: stages.elementAt(currentPage),
+                type: asmtType,
+              ),
             ),
           ],
         ));
@@ -88,8 +107,9 @@ class _AssessmentState extends State<Assessment> {
 }
 
 class LevelHome extends StatelessWidget {
-  LevelHome({@required this.stage});
+  LevelHome({@required this.stage, @required this.type});
   final String stage;
+  final int type;
 
   final List<Color> _colors = [
     Colors.blue[600],
@@ -108,36 +128,81 @@ class LevelHome extends StatelessWidget {
     "Level 5"
   ];
 
+  Object getWords(String e) {
+    switch (stage) {
+      case "Beginner":
+        return Rwords.beginner.elementAt(levels.indexOf(e));
+        break;
+      case "Intermediate":
+        return Rwords.intermediate.elementAt(levels.indexOf(e));
+        break;
+      case "Advanced":
+        return Rwords.advanced.elementAt(levels.indexOf(e));
+        break;
+    }
+
+    return "return";
+  }
+
+  void showWarning(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          // shape: StadiumBorder(),
+          title: Text(
+            "Warning..!!!",
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            "Please complete previous levels..!!",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            RaisedButton(
+                child: Text("OK"), onPressed: () => Navigator.pop(context))
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: levels
-          .map((e) => GestureDetector(
+          .map((elem) => GestureDetector(
                 child: Container(
                     padding: EdgeInsets.all(10),
                     height: 70,
                     decoration: BoxDecoration(
-                        color: _colors[levels.indexOf(e)],
+                        color: _colors[levels.indexOf(elem)],
                         borderRadius: BorderRadius.all(Radius.circular(15))),
                     margin: EdgeInsets.all(15),
                     width: double.infinity,
                     child: Center(
                         child: Text(
-                      e,
+                      elem,
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 25,
                           fontWeight: FontWeight.bold),
                     ))),
                 onTap: () {
-                  print("$stage - $e");
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TicTac(),
-                          settings: RouteSettings(arguments: "Hello")));
+                  print("$stage - $elem");
+                  if (UserProgress.currentLevel < (levels.indexOf(elem) + 1) ||
+                      UserProgress.currentStage < (stages.indexOf(stage) + 1))
+                    showWarning(context);
+                  else
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                (type == 1 ? TicTac() : TypingAssessment()),
+                            settings:
+                                RouteSettings(arguments: getWords(elem))));
                 },
               ))
           .toList(),

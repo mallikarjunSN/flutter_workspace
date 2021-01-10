@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
@@ -103,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
+              textAlign: TextAlign.center,
             ),
             Text(
               'This is really fun',

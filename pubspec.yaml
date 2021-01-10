@@ -39,6 +39,7 @@ dependencies:
   avatar_glow: ^1.2.0
   highlight_text: ^0.7.2
   string_similarity: ^1.1.0
+  date_field: ^0.1.2
 
 
 

@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/assessments.dart';
@@ -30,10 +31,17 @@ class TempState extends State<Temp> {
       case 1:
         // print(items.elementAt(index));
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Assessment()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => Assessment(),
+                settings: RouteSettings(arguments: 1)));
         break;
       case 2:
-        print(items.elementAt(index));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Assessment(),
+                settings: RouteSettings(arguments: 2)));
         break;
       case 3:
         print(items.elementAt(index));
@@ -48,7 +56,20 @@ class TempState extends State<Temp> {
     }
   }
 
-  // String data = jsondata.beginner.1[1];
+  final _firebaseDatabase = FirebaseDatabase.instance.reference();
+
+  String wordForTheDay;
+
+  void getWFD() {
+    _firebaseDatabase.once().then((snapshot) => setState(() {
+          if (snapshot.value != null) {
+            wordForTheDay = snapshot.value["wfd"];
+            print(snapshot.value);
+          } else {
+            wordForTheDay = "Unable to load word for the day";
+          }
+        }));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,16 +97,36 @@ class TempState extends State<Temp> {
               if (index > items.length - 1) return null;
               return GestureDetector(
                 child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.cyan[((index + 1) * 100) % 1000 + 100],
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  margin: EdgeInsets.all(10),
-                  padding: EdgeInsets.all(10),
-                  height: 100,
-                  width: double.infinity,
-                  child: Center(child: Text(items.elementAt(index))),
-                  // color: Colors.cyan[((index + 1) * 100) % 1000 + 100],
-                ),
+                    decoration: BoxDecoration(
+                        color: Colors.cyan[((index + 1) * 100) % 1000 + 100],
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    margin: EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
+                    height: (index == 0 ? 200 : 120),
+                    width: double.infinity,
+                    child: Center(
+                      child: (index == 0
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("word for the day"),
+                                (wordForTheDay != null
+                                    ? Text(
+                                        wordForTheDay,
+                                        style: TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    : CircularProgressIndicator()),
+                                RaisedButton(
+                                  child: Text("get"),
+                                  onPressed: getWFD,
+                                )
+                              ],
+                            )
+                          : Text(items.elementAt(index))),
+                      // color: Colors.cyan[((index + 1) * 100) % 1000 + 100],
+                    )),
                 onTap: () => onTapListener(index),
               );
             }))

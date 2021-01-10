@@ -123,6 +123,8 @@ class LoginState extends State<Login> {
 
   String status = " ";
 
+  bool showPassword = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,19 +141,19 @@ class LoginState extends State<Login> {
               style: TextStyle(color: Colors.white),
             ),
             Text(
-              "COMRADE App",
+              "VOX",
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 30),
+                  fontSize: 50),
             ),
             Padding(
               padding: EdgeInsets.all(20),
               child: Icon(
-                FontAwesomeIcons.android,
+                Icons.record_voice_over,
                 size: 80,
-                color: Colors.green,
+                color: Colors.yellow[800],
               ),
             ),
             Builder(builder: (context) {
@@ -193,7 +195,7 @@ class LoginState extends State<Login> {
                         ),
                         TextFormField(
                           style: TextStyle(fontSize: 20),
-                          obscureText: true,
+                          obscureText: !showPassword,
                           decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.white,
@@ -203,6 +205,15 @@ class LoginState extends State<Login> {
                                 color: Colors.blue,
                                 size: 30,
                               ),
+                              suffixIcon: IconButton(
+                                  icon: Icon(showPassword
+                                      ? FontAwesomeIcons.eye
+                                      : FontAwesomeIcons.eyeSlash),
+                                  onPressed: () {
+                                    setState(() {
+                                      showPassword = !showPassword;
+                                    });
+                                  }),
                               border: OutlineInputBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(30))),
