@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:hello/custom_dialog.dart';
 import 'package:hello/progress.dart';
 
-class TicTac extends StatefulWidget {
+class ReadingAssessment extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return TicTacState();
+    return ReadingAssessmentState();
   }
 }
 
-class TicTacState extends State<TicTac> {
-
+class ReadingAssessmentState extends State<ReadingAssessment> {
   String message;
-  // ClipRRect til = new
 
-  
   List<String> words;
 
   @override
@@ -23,9 +20,9 @@ class TicTacState extends State<TicTac> {
 
     return Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Align(
-            alignment: Alignment.center,
-            child: Text("message"),
+            child: Text("Reading assessments"),
           ),
         ),
         body: Center(
@@ -34,19 +31,35 @@ class TicTacState extends State<TicTac> {
               itemCount: words.length,
               itemBuilder: (context, index) {
                 return Container(
+                  alignment: Alignment.center,
                   color:
                       (UserProgress.attempts.containsKey(words.elementAt(index))
-                          ? Colors.green[(index + 2) % 10 * 100]
-                          : Colors.blue[(index + 2) % 10 * 100]),
-                  height: 100,
+                          ? Colors.green[(index + 3) % 10 * 100]
+                          : Colors.blue[(index + 3) % 10 * 100]),
+                  height: 120,
                   margin: EdgeInsets.only(top: 5, bottom: 5),
                   padding: EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceEvenly,
                     children: [
-                      Text(words.elementAt(index)),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        child: Text(
+                          words.elementAt(index),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                       FloatingActionButton(
-                        child: Icon(Icons.mic),
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.mic,
+                          color: Colors.blue,
+                          size: 30,
+                        ),
                         onPressed: () {
                           Navigator.push(
                               context,

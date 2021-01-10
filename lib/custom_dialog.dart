@@ -22,7 +22,7 @@ class _CustomDialogState extends State<CustomDialog> {
   String lastStatus = "";
   final SpeechToText speech = SpeechToText();
 
-  String _text = 'Press the button and start speaking';
+  String _text = 'Press the mic button and start speaking';
 
   @override
   void initState() {
@@ -58,8 +58,8 @@ class _CustomDialogState extends State<CustomDialog> {
 
   void comaparision() {
     setState(() {
-      accuracy = StringSimilarity.compareTwoStrings(originalWord, _text);
-      // accuracy = accuracy.
+      accuracy = StringSimilarity.compareTwoStrings(
+          originalWord.toLowerCase(), _text.toLowerCase());
     });
   }
 
@@ -92,22 +92,18 @@ class _CustomDialogState extends State<CustomDialog> {
 
   void updateProgress(double accuracy) {
     Attempt attempt = Attempt(originalWord, lastWords, accuracy);
-    // try {
     if (UserProgress.attempts.containsKey(originalWord) == false) {
-      UserProgress.attempts.putIfAbsent(originalWord, () => attempt);
+      setState(() {
+        UserProgress.attempts.putIfAbsent(originalWord, () => attempt);
+      });
       print("present");
     } else {
       UserProgress.attempts.update(originalWord, (value) => attempt);
       print("absent");
     }
-    // } catch (e) {
-    //   print(e);
-    // }
-
-    // UserProgress.attempts.forEach((key, value) {
-    //   print("$key : ${value.accuracy}\n");
-    // });
-    UserProgress.update();
+    setState(() {
+      UserProgress.update();
+    });
     Navigator.pop(context);
   }
 
@@ -116,10 +112,10 @@ class _CustomDialogState extends State<CustomDialog> {
     originalWord = ModalRoute.of(context).settings.arguments;
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Confidence'),
-          centerTitle: true,
-        ),
+        // appBar: AppBar(
+        //   title: Text('Confidence'),
+        //   centerTitle: true,
+        // ),
         body: _hasSpeech
             ? Center(
                 child: Column(
@@ -133,7 +129,7 @@ class _CustomDialogState extends State<CustomDialog> {
                     Container(
                       margin: EdgeInsets.all(10),
                       width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.1,
+                      height: MediaQuery.of(context).size.height * 0.15,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                           color: Colors.cyan,
@@ -160,6 +156,7 @@ class _CustomDialogState extends State<CustomDialog> {
                           child: Icon(
                             Icons.stop,
                             color: Colors.blue,
+                            size: 30,
                           ),
                         ),
                         AvatarGlow(
@@ -175,7 +172,7 @@ class _CustomDialogState extends State<CustomDialog> {
                               child: Icon(
                                 FontAwesomeIcons.microphone,
                                 color: Colors.blue,
-                                size: 25,
+                                size: 30,
                               ),
                               onPressed: startListening),
                         ),
@@ -187,6 +184,7 @@ class _CustomDialogState extends State<CustomDialog> {
                           child: Icon(
                             Icons.cancel,
                             color: Colors.blue,
+                            size: 30,
                           ),
                         )
                       ],
@@ -207,13 +205,12 @@ class _CustomDialogState extends State<CustomDialog> {
                         children: [
                           Center(
                             child: Container(
-                              height: 150,
-                              width: 150,
-                              // color: Colors.yellow,
+                              height: 140,
+                              width: 140,
                               decoration: BoxDecoration(
                                   color: Colors.yellow[800],
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(75))),
+                                      BorderRadius.all(Radius.circular(70))),
                               child: CircularProgressIndicator(
                                 value: accuracy,
                                 strokeWidth: 15,
@@ -223,26 +220,38 @@ class _CustomDialogState extends State<CustomDialog> {
                           ),
                           Center(
                             child: Text(
-                              "${(accuracy * 100).toStringAsPrecision(3)} %",
+                              "Accuracy\n ${(accuracy * 100).toStringAsPrecision(3)} %",
                               style: TextStyle(
-                                  fontSize: 40,
+                                  fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white),
+                              textAlign: TextAlign.center,
                             ),
                           )
                         ],
                       ),
                     ),
-                    Text(accuracy.toStringAsPrecision(3)),
+                    // Text(accuracy.toStringAsPrecision(3)),
                     SizedBox(
-                      height: 10,
+                      height: 5,
                     ),
                     Text(speech.isListening ? "Listening" : "Not listening"),
-                    RaisedButton(
-                        child: Text("submit"),
+                    Container(
+                      height: 50,
+                      width: 120,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(40))),
+                      child: RaisedButton(
+                        child: Text(
+                          "submit",
+                          style: TextStyle(fontSize: 20),
+                        ),
                         onPressed: () {
                           updateProgress(accuracy);
-                        })
+                        },
+                        color: Colors.amber,
+                      ),
+                    )
                   ],
                 ),
               )

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hello/progress.dart';
-import 'package:hello/tic_tac.dart';
+import 'package:hello/reading.dart';
 import 'package:hello/typing.dart';
 import 'package:hello/words.dart';
 
@@ -33,18 +32,17 @@ class _AssessmentState extends State<Assessment> {
     return Scaffold(
         backgroundColor: Colors.amber[300],
         appBar: AppBar(
-          toolbarHeight: 65,
           title:
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             Text(
               (asmtType == 1
-                  ? "Reading \n${stages.elementAt(currentPage)}"
-                  : "Typing \n${stages.elementAt(currentPage)}"),
+                  ? "Reading >> ${stages.elementAt(currentPage)}"
+                  : "Typing >> ${stages.elementAt(currentPage)}"),
               style: TextStyle(
-                  fontSize: 25,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue[800]),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
             ),
             Icon(
               icons.elementAt(currentPage),
@@ -129,17 +127,30 @@ class LevelHome extends StatelessWidget {
   ];
 
   Object getWords(String e) {
-    switch (stage) {
-      case "Beginner":
-        return Rwords.beginner.elementAt(levels.indexOf(e));
-        break;
-      case "Intermediate":
-        return Rwords.intermediate.elementAt(levels.indexOf(e));
-        break;
-      case "Advanced":
-        return Rwords.advanced.elementAt(levels.indexOf(e));
-        break;
-    }
+    if (type == 1)
+      switch (stage) {
+        case "Beginner":
+          return Rwords.beginner.elementAt(levels.indexOf(e));
+          break;
+        case "Intermediate":
+          return Rwords.intermediate.elementAt(levels.indexOf(e));
+          break;
+        case "Advanced":
+          return Rwords.advanced.elementAt(levels.indexOf(e));
+          break;
+      }
+    else
+      switch (stage) {
+        case "Beginner":
+          return TWords.beginner.elementAt(levels.indexOf(e));
+          break;
+        case "Intermediate":
+          return TWords.intermediate.elementAt(levels.indexOf(e));
+          break;
+        case "Advanced":
+          return TWords.advanced.elementAt(levels.indexOf(e));
+          break;
+      }
 
     return "return";
   }
@@ -149,7 +160,6 @@ class LevelHome extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          // shape: StadiumBorder(),
           title: Text(
             "Warning..!!!",
             textAlign: TextAlign.center,
@@ -176,11 +186,11 @@ class LevelHome extends StatelessWidget {
           .map((elem) => GestureDetector(
                 child: Container(
                     padding: EdgeInsets.all(10),
-                    height: 70,
+                    height: 60,
                     decoration: BoxDecoration(
                         color: _colors[levels.indexOf(elem)],
                         borderRadius: BorderRadius.all(Radius.circular(15))),
-                    margin: EdgeInsets.all(15),
+                    margin: EdgeInsets.all(10),
                     width: double.infinity,
                     child: Center(
                         child: Text(
@@ -192,17 +202,17 @@ class LevelHome extends StatelessWidget {
                     ))),
                 onTap: () {
                   print("$stage - $elem");
-                  if (UserProgress.currentLevel < (levels.indexOf(elem) + 1) ||
-                      UserProgress.currentStage < (stages.indexOf(stage) + 1))
-                    showWarning(context);
-                  else
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                (type == 1 ? TicTac() : TypingAssessment()),
-                            settings:
-                                RouteSettings(arguments: getWords(elem))));
+                  // if (UserProgress.currentLevel < (levels.indexOf(elem) + 1) ||
+                  //     UserProgress.currentStage < (stages.indexOf(stage) + 1))
+                  //   showWarning(context);
+                  // else
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => (type == 1
+                              ? ReadingAssessment()
+                              : TypingAssessment()),
+                          settings: RouteSettings(arguments: getWords(elem))));
                 },
               ))
           .toList(),

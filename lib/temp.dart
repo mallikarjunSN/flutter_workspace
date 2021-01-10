@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/assessments.dart';
 import 'package:hello/auth.dart';
 import 'package:hello/login.dart';
+import 'package:hello/progress.dart';
 
 class Temp extends StatefulWidget {
   @override
@@ -23,7 +25,7 @@ class TempState extends State<Temp> {
     "logout"
   ];
 
-  void onTapListener(int index) async {
+  void onTapListener(int index, BuildContext context) async {
     switch (index) {
       case 0:
         print(items.elementAt(index));
@@ -44,6 +46,66 @@ class TempState extends State<Temp> {
                 settings: RouteSettings(arguments: 2)));
         break;
       case 3:
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              "Statistics",
+              textAlign: TextAlign.center,
+            ),
+            content: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                      "Total Words attempted - ${UserProgress.totalWordsAttempted}"),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  // Text(UserProgress.totalWordsAttempted),
+                  SizedBox(
+                    height: 150,
+                    width: 150,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Center(
+                          child: Container(
+                            height: 140,
+                            width: 140,
+                            decoration: BoxDecoration(
+                                color: Colors.yellow[800],
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(70))),
+                            child: CircularProgressIndicator(
+                              value: UserProgress.accuracy,
+                              strokeWidth: 15,
+                              backgroundColor: Colors.grey.shade400,
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            "Accuracy\n ${(UserProgress.accuracy * 100).toStringAsPrecision(3)} %",
+                            style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ]),
+            actions: [
+              RaisedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("OK"),
+              )
+            ],
+          ),
+        );
         print(items.elementAt(index));
         break;
       case 4:
@@ -59,12 +121,15 @@ class TempState extends State<Temp> {
   final _firebaseDatabase = FirebaseDatabase.instance.reference();
 
   String wordForTheDay;
+  String fullName = "";
 
-  void getWFD() {
-    _firebaseDatabase.once().then((snapshot) => setState(() {
+  void getWFD() async {
+    await _firebaseDatabase.once().then((snapshot) => setState(() {
           if (snapshot.value != null) {
             wordForTheDay = snapshot.value["wfd"];
-            print(snapshot.value);
+            fullName = snapshot.value[FirebaseAuth.instance.currentUser.uid]
+                ["fullname"];
+            print(snapshot.value[FirebaseAuth.instance.currentUser.uid]);
           } else {
             wordForTheDay = "Unable to load word for the day";
           }
@@ -79,13 +144,14 @@ class TempState extends State<Temp> {
           slivers: <Widget>[
             SliverAppBar(
               floating: true,
-              // title: Text(
-              //   "__",
-              //   style: TextStyle(
-              //       fontWeight: FontWeight.bold,
-              //       color: Colors.white,
-              //       fontSize: 30.0),
-              // ),
+              title: Text(
+                "welcome\n$fullName",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 25.0),
+              ),
               expandedHeight: 180.0,
               flexibleSpace: FlexibleSpaceBar(
                 background: FittedBox(
@@ -107,27 +173,33 @@ class TempState extends State<Temp> {
                     child: Center(
                       child: (index == 0
                           ? Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Text("word for the day"),
                                 (wordForTheDay != null
                                     ? Text(
-                                        wordForTheDay,
+                                        "\" $wordForTheDay \"",
                                         style: TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold),
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
                                       )
-                                    : CircularProgressIndicator()),
+                                    : SizedBox()),
                                 RaisedButton(
                                   child: Text("get"),
                                   onPressed: getWFD,
                                 )
                               ],
                             )
-                          : Text(items.elementAt(index))),
-                      // color: Colors.cyan[((index + 1) * 100) % 1000 + 100],
+                          : Text(
+                              items.elementAt(index),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 25.0),
+                            )),
                     )),
-                onTap: () => onTapListener(index),
+                onTap: () => onTapListener(index, context),
               );
             }))
           ],
