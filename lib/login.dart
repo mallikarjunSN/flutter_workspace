@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hello/auth.dart';
+import 'package:hello/about.dart';
+import 'package:hello/auth/authentication.dart';
+import 'package:hello/custom_widgets/anime_button.dart';
+import 'package:hello/messaging/messaging_home.dart';
 import 'package:hello/signup.dart';
-import 'package:hello/temp.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -58,67 +59,6 @@ class LoginState extends State<Login> {
   // void validate() {
   //   if (_loginKey.currentState.validate()) {}
   // }
-
-  final actionsLandscape = Row(
-    children: [
-      Builder(
-        builder: (context) => ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(30)),
-          child: SizedBox(
-            height: 50,
-            width: MediaQuery.of(context).size.width * 0.3,
-            child: RaisedButton(
-              color: Colors.blue,
-              onPressed: () async {
-                // setState(() {});
-                // validate();
-              },
-              child: Text(
-                "Login",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 25),
-              ),
-            ),
-          ),
-        ),
-      ),
-      Text(
-        "error",
-        style: TextStyle(color: Colors.red),
-      ),
-      SizedBox(
-        width: 60,
-      ),
-      Text(
-        "New to App??",
-        style: TextStyle(color: Colors.white, fontSize: 20),
-      ),
-      SizedBox(
-        height: 5,
-      ),
-      Builder(
-        builder: (context) => ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(30)),
-          child: SizedBox(
-            height: 50,
-            width: MediaQuery.of(context).size.width * 0.3,
-            child: RaisedButton(
-              color: Colors.blue,
-              onPressed: () {},
-              child: Text(
-                "Signup",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 25),
-              ),
-            ),
-          ),
-        ),
-      )
-    ],
-  );
-
-  // final actionsPortrait = ;
-
   AuthService _auth = AuthService();
 
   String status = " ";
@@ -132,230 +72,179 @@ class LoginState extends State<Login> {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        color: Colors.blue[800],
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "welcome to",
-              style: TextStyle(color: Colors.white),
-            ),
-            Text(
-              "VOX",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 50),
-            ),
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Icon(
-                Icons.record_voice_over,
-                size: 80,
-                color: Colors.yellow[800],
+        padding: EdgeInsets.only(left: 25, right: 25),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.cyan,
+              Colors.cyanAccent,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Form(
+          key: _loginKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                "welcome to",
+                style: TextStyle(color: Colors.white),
               ),
-            ),
-            Builder(builder: (context) {
-              return Form(
-                  key: _loginKey,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          keyboardType: TextInputType.emailAddress,
-                          style: TextStyle(fontSize: 20),
-                          decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.email,
-                                color: Colors.blue,
-                                size: 30,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              labelStyle: TextStyle(fontSize: 30),
-                              hintText: "email",
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(30))),
-                              contentPadding: EdgeInsets.all(10)),
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return "please enter an email address";
-                            }
-                            return null;
-                          },
-                          onChanged: (newValue) => setState(() {
-                            email = newValue;
-                          }),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        TextFormField(
-                          style: TextStyle(fontSize: 20),
-                          obscureText: !showPassword,
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: "password",
-                              prefixIcon: Icon(
-                                Icons.lock,
-                                color: Colors.blue,
-                                size: 30,
-                              ),
-                              suffixIcon: IconButton(
-                                  icon: Icon(showPassword
-                                      ? FontAwesomeIcons.eye
-                                      : FontAwesomeIcons.eyeSlash),
-                                  onPressed: () {
-                                    setState(() {
-                                      showPassword = !showPassword;
-                                    });
-                                  }),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(30))),
-                              labelStyle: TextStyle(fontSize: 30),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.never,
-                              contentPadding: EdgeInsets.all(10)),
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return "please enter password";
-                            }
-                            return null;
-                          },
-                          onChanged: (newValue) => setState(() {
-                            password = newValue;
-                          }),
-                        ),
-                        SizedBox(
-                          height: 25,
-                        ),
-                        (MediaQuery.of(context).orientation ==
-                                Orientation.portrait
-                            ? Column(
-                                children: [
-                                  Builder(
-                                    builder: (context) => ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(30)),
-                                      child: SizedBox(
-                                        height: 50,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: RaisedButton(
-                                          color: Colors.blue,
-                                          onPressed: () async {
-                                            if (_loginKey.currentState
-                                                .validate()) {
-                                              print("valid");
-                                              setState(() {
-                                                status = "Signing in...";
-                                              });
-                                              // Future<bool> status =
-                                              await _auth
-                                                  .signIn(email, password)
-                                                  .then((value) {
-                                                setState(() {
-                                                  status = value;
-                                                });
-                                                if (status == "success") {
-                                                  Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (BuildContext
-                                                                  context) =>
-                                                              Temp()));
-                                                }
-                                              });
-                                            }
-                                          },
-                                          child: Text(
-                                            "Login",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 30,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  (status == "Signing in..."
-                                      ? CircularProgressIndicator(
-                                          strokeWidth: 5,
-                                          backgroundColor: Colors.white,
-                                        )
-                                      : Text("")),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    status,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                        color: (status == "success" ||
-                                                status == "Signing in..."
-                                            ? Colors.white
-                                            : Colors.red)),
-                                  ),
-                                  SizedBox(
-                                    height: 50,
-                                  ),
-                                  Text(
-                                    "New to App??",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Builder(
-                                    builder: (context) => ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(30)),
-                                      child: SizedBox(
-                                        height: 50,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.6,
-                                        child: RaisedButton(
-                                          color: Colors.blue,
-                                          onPressed: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        Signup()));
-                                          },
-                                          child: Text(
-                                            "Signup",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 25),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )
-                            : actionsLandscape)
-                      ],
+              Text(
+                "VOX",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 50),
+              ),
+              TextFormField(
+                keyboardType: TextInputType.emailAddress,
+                style: TextStyle(fontSize: 18),
+                decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.alternate_email_outlined,
+                      color: Colors.black,
+                      size: 25,
                     ),
-                  ));
-            })
-          ],
+                    filled: true,
+                    fillColor: Colors.white,
+                    labelStyle: TextStyle(fontSize: 18),
+                    hintText: "email",
+                    errorStyle: TextStyle(fontSize: 18, color: Colors.red),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30))),
+                    contentPadding: EdgeInsets.all(10)),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "please enter an email address";
+                  }
+
+                  return null;
+                },
+                onChanged: (newValue) => setState(
+                  () {
+                    email = newValue;
+                  },
+                ),
+              ),
+              TextFormField(
+                style: TextStyle(fontSize: 18),
+                obscureText: !showPassword,
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: "password",
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: Colors.black,
+                      size: 25,
+                    ),
+                    suffixIcon: IconButton(
+                        icon: Icon(
+                          Icons.remove_red_eye,
+                          color: (!showPassword
+                              ? Colors.black.withOpacity(0.5)
+                              : Colors.blue),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            showPassword = !showPassword;
+                          });
+                        }),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30))),
+                    labelStyle: TextStyle(fontSize: 18),
+                    errorStyle: TextStyle(fontSize: 18),
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    contentPadding: EdgeInsets.all(10)),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "please enter password";
+                  }
+                  return null;
+                },
+                onChanged: (newValue) => setState(() {
+                  password = newValue;
+                }),
+              ),
+              AnimeButton(
+                height: 60,
+                width: 100,
+                backgroundColor: Colors.amberAccent,
+                onPressed: () async {
+                  if (_loginKey.currentState.validate()) {
+                    print("valid");
+                    setState(() {
+                      status = "Signing in...";
+                    });
+                    // Future<bool> status =
+                    await _auth.signIn(email, password).then((value) {
+                      setState(() {
+                        status = value;
+                      });
+                      if (status == "success") {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    MessagingHome()));
+                      }
+                    });
+                  }
+                },
+                child: Text(
+                  "Login",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              (status == "Signing in..."
+                  ? CircularProgressIndicator(
+                      strokeWidth: 5,
+                      backgroundColor: Colors.white,
+                    )
+                  : Text("")),
+              Text(
+                status,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: (status == "success" || status == "Signing in..."
+                        ? Colors.white
+                        : Colors.red)),
+              ),
+              Text(
+                "New to App??",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AboutPage()));
+                },
+                child: Text("about"),
+              ),
+              AnimeButton(
+                backgroundColor: Colors.blue,
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Signup()));
+                },
+                child: Text(
+                  "Signup",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 25),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

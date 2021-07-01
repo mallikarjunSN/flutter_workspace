@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hello/home.dart';
-// import 'package:hello/home.dart';
 import 'package:hello/login.dart';
 // import 'package:hello/temp.dart';
 // import 'package:hello/input.dart';
@@ -45,10 +43,7 @@ class MyAppState extends State<MyApp> {
           } else if (snapshot.hasData) {
             _auth = FirebaseAuth.instance;
             user = _auth.currentUser;
-            if (user == null)
-              return Login();
-            else
-              return DyslexiaHome();
+            return Login();
           } else {
             return Center(
               child: CircularProgressIndicator(),
@@ -86,8 +81,8 @@ class MyHomeState extends State<MyHome> {
             children: [
               Column(
                 children: [
-                  RaisedButton(
-                      color: Color.fromARGB(255, 255, 0, 0),
+                  ElevatedButton(
+                      // color: Color.fromARGB(255, 255, 0, 0),
                       child: Text(
                         "RCB",
                         style: TextStyle(
@@ -113,7 +108,7 @@ class MyHomeState extends State<MyHome> {
             //   color: Colors.cyan,
             // )
           ), */
-          RaisedButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => SecondPage()));
@@ -136,14 +131,14 @@ class SecondPage extends StatelessWidget {
       body: Center(
           child: Column(
         children: [
-          RaisedButton(
-              color: Colors.blue,
+          ElevatedButton(
+              // color: Colors.blue,
               child: Text("Go Back"),
               onPressed: () {
                 Navigator.pop(context);
               }),
-          RaisedButton(
-              color: Colors.blue,
+          ElevatedButton(
+              // color: Colors.blue,
               child: Text("Third Page"),
               onPressed: () {
                 Navigator.push(context,
@@ -174,9 +169,9 @@ class ThirdPage extends StatelessWidget {
       ),
       bottomNavigationBar:
           BottomNavigationBar(items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
         BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance), title: Text("Account")),
+            icon: Icon(Icons.account_balance), label: "Account"),
       ]),
     );
   }

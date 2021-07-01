@@ -1,11 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello/assessments.dart';
-import 'package:hello/auth.dart';
+import 'package:flutter/rendering.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/dyslexia/assessments.dart';
+import 'package:hello/auth/authentication.dart';
+import 'package:hello/messaging/messages_ui.dart';
 import 'package:hello/login.dart';
-import 'package:hello/progress.dart';
+import 'package:hello/model/progress.dart';
+
+import 'package:hello/dyslexia/demo_page.dart';
 
 class Temp extends StatefulWidget {
   @override
@@ -99,7 +102,7 @@ class TempState extends State<Temp> {
                   ),
                 ]),
             actions: [
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text("OK"),
               )
@@ -118,23 +121,18 @@ class TempState extends State<Temp> {
     }
   }
 
-  final _firebaseDatabase = FirebaseDatabase.instance.reference();
-
   String wordForTheDay;
   String fullName = "";
 
-  void getWFD() async {
-    await _firebaseDatabase.once().then((snapshot) => setState(() {
-          if (snapshot.value != null) {
-            wordForTheDay = snapshot.value["wfd"];
-            fullName = snapshot.value[FirebaseAuth.instance.currentUser.uid]
-                ["fullname"];
-            print(snapshot.value[FirebaseAuth.instance.currentUser.uid]);
-          } else {
-            wordForTheDay = "Unable to load word for the day";
-          }
-        }));
-  }
+  void getWFD() async {}
+
+  List<IconData> menuIcons = [
+    FontAwesomeIcons.fileWord,
+    Icons.record_voice_over,
+    FontAwesomeIcons.keyboard,
+    Icons.pie_chart,
+    FontAwesomeIcons.signOutAlt
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +150,22 @@ class TempState extends State<Temp> {
                     color: Colors.white,
                     fontSize: 25.0),
               ),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => DemoPage())),
+                    child: Text("Goto demo")),
+                IconButton(
+                    icon: Icon(Icons.chat),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MessagesUI(),
+                        ),
+                      );
+                    })
+              ],
               expandedHeight: 180.0,
               flexibleSpace: FlexibleSpaceBar(
                 background: FittedBox(
@@ -168,7 +182,7 @@ class TempState extends State<Temp> {
                         borderRadius: BorderRadius.all(Radius.circular(10))),
                     margin: EdgeInsets.all(10),
                     padding: EdgeInsets.all(10),
-                    height: (index == 0 ? 200 : 120),
+                    height: (index == 0 ? 200 : 150),
                     width: double.infinity,
                     child: Center(
                       child: (index == 0
@@ -185,19 +199,30 @@ class TempState extends State<Temp> {
                                             color: Colors.white),
                                       )
                                     : SizedBox()),
-                                RaisedButton(
+                                ElevatedButton(
                                   child: Text("get"),
                                   onPressed: getWFD,
                                 )
                               ],
                             )
-                          : Text(
-                              items.elementAt(index),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 25.0),
-                            )),
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                  Text(
+                                    items.elementAt(index),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontSize: 25.0),
+                                  ),
+                                  (index != 0
+                                      ? Icon(
+                                          menuIcons.elementAt(index),
+                                          size: 80,
+                                          color: Colors.amber,
+                                        )
+                                      : SizedBox()),
+                                ])),
                     )),
                 onTap: () => onTapListener(index, context),
               );

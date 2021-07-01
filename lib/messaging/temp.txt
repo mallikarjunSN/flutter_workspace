@@ -1,0 +1,55 @@
+//as in firebase
+-MessagingUser
+    uid//doc id
+        fullName
+        email
+        chatIds // array
+            chatId1
+
+
+
+
+
+messaging home 
+    required data
+        all contacts name, last message, last message on
+    
+
+_Chats
+    chatId // doc - id
+        lastMessage
+        blocked:false
+        lastMessageOn
+        participants
+        messages
+            authorUid
+            content
+            time
+            status
+
+
+
+{lastMessage: good morning,
+ messages: 
+    {message: 
+        {creatorId: sender,
+        time: Timestamp(seconds=1623609000, nanoseconds=0),
+        content: hello,
+        status: 1}
+    }
+}
+
+{lastMessage: good morning, 
+    messages: 
+        {message: 
+            {senderId: dfbdkfd, 
+             time: Timestamp(seconds=1623695400, nanoseconds=0), 
+             content: fdskjh, status: 2
+            },
+        message2: 
+            {senderId: dkfbdkf,
+             time: Timestamp(seconds=1623695400,nanoseconds=0), 
+             content: jdndfdjj, 
+             status: 1}
+        }
+}
