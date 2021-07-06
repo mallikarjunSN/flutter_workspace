@@ -44,6 +44,52 @@ class _MyDrawerState extends State<MyDrawer> {
     } catch (e) {}
   }
 
+  void logout() {
+    Navigator.pop(context);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Logout of the App??",
+              style: TextStyle(fontSize: 25),
+              textAlign: TextAlign.center,
+            ),
+            content: ButtonBar(
+              alignment: MainAxisAlignment.spaceEvenly,
+              buttonMinWidth: 100,
+              mainAxisSize: MainAxisSize.min,
+              buttonTextTheme: ButtonTextTheme.primary,
+              children: [
+                ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.amber)),
+                    onPressed: () async {
+                      await AuthService().signOut().then((value) => (value ==
+                              "success"
+                          ? Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) => Login()))
+                          : print("some error in logging out")));
+                    },
+                    child: Text(
+                      "Yes",
+                      style: TextStyle(fontSize: 18),
+                    )),
+                ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.blue),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("No", style: TextStyle(fontSize: 18))),
+              ],
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     getTheme();
@@ -60,11 +106,12 @@ class _MyDrawerState extends State<MyDrawer> {
                       'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'),
                 ),
                 Expanded(
-                    flex: 2,
-                    child: Icon(
-                      Icons.android_outlined,
-                      size: 50,
-                    )),
+                  flex: 2,
+                  child: Icon(
+                    Icons.android_outlined,
+                    size: 50,
+                  ),
+                ),
               ],
             ),
           ),
@@ -100,12 +147,7 @@ class _MyDrawerState extends State<MyDrawer> {
             title: Row(
               children: [Text("Logout")],
             ),
-            onTap: () async {
-              await AuthService().signOut().then((value) => (value == "success"
-            ? Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => Login()))
-            : print("some error")));
-            },
+            onTap: logout,
             leading: Icon(Icons.logout),
           ),
           Divider(

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
 
@@ -10,6 +12,7 @@ class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        // backgroundColor: Colors.white,
         appBar: AppBar(
           shadowColor: Colors.red[800],
           centerTitle: true,
@@ -33,7 +36,7 @@ class _AboutPageState extends State<AboutPage> {
                       " how they relate to letters and words (decoding). Also called reading disability, dyslexia affects areas of the brain that process language.\n"
                       "Between 5% and 20% of all people have dyslexia. According to the Department of Biotechnology, the incidence of dyslexia "
                       "in India is estimated at 10% and nearly 35 million children in the country are thought to have this learning disability.",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(fontSize: 18),
                     )),
                 Container(
                   child: new Center(child: Image.asset('assets/count.png')),
@@ -41,13 +44,12 @@ class _AboutPageState extends State<AboutPage> {
                 Container(
                     padding: const EdgeInsets.only(
                         top: 5.0, left: 12.0, right: 12.0),
-                    color: Colors.grey[50],
                     child: Text(
                       "People with dyslexia have normal intelligence and usually have normal vision. Most children with dyslexia can "
                       "succeed in school with tutoring or a specialized education program. Emotional support also plays an important role.\n"
                       "Though there's no cure for dyslexia, early assessment and intervention result in the best outcome. "
                       "Sometimes dyslexia goes undiagnosed for years and isn't recognized until adulthood, but it's never too late to seek help.",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(fontSize: 16),
                     )),
                 Container(
                   child: new Center(child: Image.asset('assets/dys.png')),
@@ -60,10 +62,7 @@ class _AboutPageState extends State<AboutPage> {
                       color: Colors.greenAccent[100]),
                   child: Text(
                     'Symptoms',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                   ),
                 ),
                 Container(
@@ -73,7 +72,7 @@ class _AboutPageState extends State<AboutPage> {
                     "Signs of dyslexia can be difficult to recognize before your child enters school, but some early clues may indicate a problem. "
                     "Once your child reaches school age, your child's teacher may be the first to notice a problem. Severity varies, but the condition "
                     "often becomes apparent as a child starts learning to read.",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
                 Container(
@@ -89,9 +88,9 @@ class _AboutPageState extends State<AboutPage> {
                   child: Text(
                     'Before school',
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
@@ -105,7 +104,9 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Problems forming words correctly, such as reversing sounds in words or confusing words that sound alike\n"
                     "   • Problems remembering or naming letters, numbers and colors\n"
                     "   • Difficulty learning nursery rhymes or playing rhyming games",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 Container(
@@ -117,9 +118,9 @@ class _AboutPageState extends State<AboutPage> {
                   child: Text(
                     'School age',
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
@@ -136,7 +137,9 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Difficulty spelling\n"
                     "   • Spending an unusually long time completing tasks that involve reading or writing\n"
                     "   • Avoiding activities that involve reading",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 Container(
@@ -148,9 +151,9 @@ class _AboutPageState extends State<AboutPage> {
                   child: Text(
                     'Teens and adults',
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
@@ -171,7 +174,9 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Trouble learning a foreign language\n"
                     "   • Difficulty memorizing\n"
                     "   • Difficulty doing math problems",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 Container(
@@ -183,9 +188,9 @@ class _AboutPageState extends State<AboutPage> {
                   child: Text(
                     'Causes and Risk factors',
                     style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
@@ -199,7 +204,9 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Premature birth or low birth weight\n"
                     "   • Exposure during pregnancy to nicotine, drugs, alcohol or infection that may alter brain development in the fetus\n"
                     "   • Individual differences in the parts of the brain that enable reading",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 Container(
@@ -215,9 +222,9 @@ class _AboutPageState extends State<AboutPage> {
                   child: Text(
                     'Complications',
                     style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
@@ -235,7 +242,9 @@ class _AboutPageState extends State<AboutPage> {
                     "and vice versa. ADHD can cause difficulty sustaining attention as well as hyperactivity and impulsive "
                     "behavior, which can make dyslexia harder to treat.",
                     // textAlign: TextAlign.justify,
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 Container(
@@ -247,9 +256,9 @@ class _AboutPageState extends State<AboutPage> {
                   child: Text(
                     'Treatment',
                     style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Container(
@@ -263,7 +272,9 @@ class _AboutPageState extends State<AboutPage> {
                     "accurately by providing them suitable assessments. It tracks improvement over the user time. "
                     "The average accuracy in the statistic section of the application gives an insight to the user "
                     "to decide on how much effort he/she has to put in the future to get better.",
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ]),

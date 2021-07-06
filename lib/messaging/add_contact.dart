@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/model/user_model.dart';
-import 'package:hello/services/chat_details_service.dart';
+import 'package:hello/services/chat_service.dart';
 import 'package:hello/services/user_service.dart';
 
 class AddContactPage extends StatefulWidget {
@@ -20,28 +20,30 @@ class _AddContactPageState extends State<AddContactPage> {
       FirebaseFirestore.instance.collection("chats");
   Widget result;
 
-  String email;
+  String email = '';
 
   bool searching = false;
 
-  var data;
+  var searchData;
+
+  MessagingUser mUser;
 
   final String currentUserUid = FirebaseAuth.instance.currentUser.uid;
 
   String chatId;
 
   void _search(MessagingUser mUser) {
-    if (email == FirebaseAuth.instance.currentUser.email) {
+    if (!validEmail()) {
       setState(() {
         result = Text(
-          "You cannot add your own mail address..!!",
+          "Invalid email address..!!",
           textAlign: TextAlign.center,
         );
       });
-    } else if (email == null) {
+    } else if (email == FirebaseAuth.instance.currentUser.email) {
       setState(() {
         result = Text(
-          "Invalid Email address..!!",
+          "You cannot add your own mail address..!!",
           textAlign: TextAlign.center,
         );
       });
@@ -54,7 +56,7 @@ class _AddContactPageState extends State<AddContactPage> {
         setState(() {
           searching = false;
           result = Text(
-            "Contact already exists..!!",
+            "You already have a chat for the Entered email...!!",
             textAlign: TextAlign.center,
           );
         });
@@ -64,7 +66,7 @@ class _AddContactPageState extends State<AddContactPage> {
             searching = false;
           });
           if (value.size != 0) {
-            data = value.docs.first.data() as Map<String, dynamic>;
+            searchData = value.docs.first.data() as Map<String, dynamic>;
             setState(() {
               result = Column(
                 children: [
@@ -77,7 +79,7 @@ class _AddContactPageState extends State<AddContactPage> {
                     height: 5,
                   ),
                   Text(
-                    "Full Name: ${data['fullName']}\nEmail :  ${data['email']}",
+                    "Full Name: ${searchData['fullName']}\nEmail :  ${searchData['email']}",
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -96,20 +98,35 @@ class _AddContactPageState extends State<AddContactPage> {
   }
 
   Future<void> _addContact(MessagingUser mUser) async {
-    if (data != null) {
+    if (searchData != null && validEmail()) {
       setState(() {
         result = CircularProgressIndicator();
       });
 
-      await ChatDetailsService().addNewChat(
-          [FirebaseAuth.instance.currentUser.email, email]).then((String cid) {
-        UserService().updateContactsChatIds(mUser, cid, email).then((status) {
-          setState(() {
-            result = Text("Contact added successfully");
+      if (mUser.contacts.contains(email)) {
+        setState(() {
+          result = Text(
+            "You already have a chat for the Entered email ..!!",
+            textAlign: TextAlign.center,
+          );
+        });
+      } else
+        await ChatService()
+            .addNewChat([FirebaseAuth.instance.currentUser.email, email]).then(
+                (String cid) {
+          UserService().updateContactsChatIds(mUser, cid, email).then((status) {
+            setState(() {
+              result = Text("Contact added successfully");
+            });
           });
         });
-      });
     }
+  }
+
+  bool validEmail() {
+    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9.]{2,}$",
+            caseSensitive: false, dotAll: true)
+        .hasMatch(email);
   }
 
   @override
@@ -119,12 +136,12 @@ class _AddContactPageState extends State<AddContactPage> {
         title: Text("Add new Contact"),
       ),
       body: Center(
-          child: FutureBuilder<MessagingUser>(
-        future: UserService()
-            .getMessagingUserById(FirebaseAuth.instance.currentUser.uid),
+          child: StreamBuilder<DocumentSnapshot>(
+        stream: UserService()
+            .getMessagingUserAsStream(FirebaseAuth.instance.currentUser.uid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            MessagingUser mUser = snapshot.data;
+            mUser = MessagingUser.fromJson(snapshot.data);
             return Container(
               height: 250,
               child: Column(
@@ -162,16 +179,20 @@ class _AddContactPageState extends State<AddContactPage> {
                       ),
                       DialogButton(
                         icon: Icons.search,
-                        color: Colors.amber,
+                        color: (validEmail() ? Colors.amber : Colors.grey),
                         onPressed: () => _search(mUser),
                       ),
                       DialogButton(
                         icon: Icons.person_add_alt_1_sharp,
-                        color: (data == null ? Colors.grey : Colors.green),
+                        color: (searchData == null && !validEmail()
+                            ? Colors.grey
+                            : Colors.green),
                         onPressed: () => _addContact(mUser),
                       )
                     ],
                   ),
+                  ElevatedButton(
+                      onPressed: validEmail, child: Icon(Icons.badge))
                 ],
               ),
             );

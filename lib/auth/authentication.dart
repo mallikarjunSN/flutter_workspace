@@ -8,10 +8,7 @@ class AuthService {
     try {
       UserCredential userCred = await auth.signInWithEmailAndPassword(
           email: email, password: password);
-
-      print("success bro");
       currentUser = userCred.user;
-      print(currentUser.displayName);
       return "success";
     } on FirebaseAuthException catch (e) {
       return e.code;

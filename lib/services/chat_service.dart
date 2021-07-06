@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hello/messaging/messages_ui.dart';
 
-class ChatDetailsService {
+class ChatService {
   CollectionReference chatsReference;
 
-  ChatDetailsService() {
+  ChatService() {
     chatsReference = FirebaseFirestore.instance.collection("chats");
   }
 
@@ -22,5 +23,22 @@ class ChatDetailsService {
     }).then((value) => value.id);
 
     return chatId;
+  }
+
+  Stream<QuerySnapshot> getMessagesStream(String chatId) {
+    return chatsReference
+        .doc(chatId)
+        .collection("messages")
+        .orderBy("time", descending: true)
+        .snapshots();
+  }
+
+  Future<void> addMessage(String chatId, Message message) {
+    return chatsReference.doc(chatId).collection("messages").add({
+      "authorUid": message.authorUid,
+      "content": message.content,
+      "time": message.time,
+      "status": message.status,
+    });
   }
 }

@@ -1,11 +1,13 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/auth/authentication.dart';
 import 'package:hello/custom_widgets/anime_button.dart';
-import 'package:hello/messaging/messaging_home.dart';
 import 'package:hello/model/user_model.dart';
-import 'package:hello/temp.dart';
+import 'package:hello/services/user_service.dart';
+import 'package:hello/verify_email.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -14,313 +16,633 @@ class Signup extends StatefulWidget {
   }
 }
 
+class InfoClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    double height = size.height;
+    double width = size.width;
+    Path path = Path();
+
+    RRect rRect = RRect.fromLTRBAndCorners(
+      0,
+      height * 0.15,
+      width,
+      height,
+      bottomLeft: Radius.circular(15),
+      bottomRight: Radius.circular(15),
+      topLeft: Radius.circular(15),
+      topRight: Radius.circular(15),
+    );
+
+    path.moveTo(0, height * 0.4);
+    path.addRRect(rRect);
+    path.lineTo(width * 0.75, height * 0.15);
+    path.lineTo(width * 0.8, 0);
+    path.lineTo(width * 0.85, height * 0.15);
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper oldClipper) {
+    return true;
+  }
+}
+
+class IOType {
+  static const String VOICE_IO = "Voice I/O";
+  static const String TEXT_IO = "Text I/O";
+}
+
 class SignupState extends State<Signup> {
   final _signupKey = GlobalKey<FormState>();
 
+  String fullName;
   String email;
   String password;
   String cPassword;
-
-  String fullName;
   String userType;
+  String ioType;
 
   String error;
 
+  bool searching = false;
+
   List<String> ddItems = [UserType.DYSLEXIA, UserType.MESSAGING];
+  List<String> ioTypes = [IOType.TEXT_IO, IOType.VOICE_IO];
 
   AuthService _auth = AuthService();
 
-  String status = "";
+  bool busy = false;
 
   final _ffStore = FirebaseFirestore.instance;
 
   User currentUser;
 
   Future<void> saveUserData() async {
-    if (userType == UserType.MESSAGING) {
+    if (userType == UserType.MESSAGING)
       await _ffStore
           .collection("messagingUsers")
           .doc(currentUser.uid.trim())
           .set({
         "fullName": fullName,
         "email": currentUser.email,
+        "ioType": ioType,
         "contacts": [],
         "chatIds": []
+      }).then((value) {
+        currentUser.sendEmailVerification();
       });
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MessagingHome(),
-          ));
-    } else {
+    else {
       await _ffStore
           .collection("dyslexiaUsers")
           .doc(currentUser.uid.trim())
           .set({
         "fullName": fullName,
         "email": currentUser.email,
+      }).then((value) {
+        currentUser.sendEmailVerification();
       });
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Temp(),
-          ));
     }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VerifyEmail(),
+      ),
+    );
   }
 
-  Future _alert(BuildContext context, String message) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: Duration(milliseconds: 2000),
-        elevation: 20,
-        content: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "$message ...!!",
-              style: TextStyle(fontSize: 18),
+  void _alert(BuildContext context, String message) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("OK"),
             )
           ],
-        ),
-      ),
+          title: Text(
+            "ERROR",
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.red,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message ?? "",
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   bool showPassword = false;
 
+  double height, width;
+
+  Map<String, String> errorMessage = {
+    "email-already-in-use": "Please use different email-id"
+  };
+
+  void signUp() async {
+    if (_signupKey.currentState.validate()) {
+      setState(() {
+        busy = true;
+      });
+      await _auth.signUp(email, password).then((value) async {
+        if (value == "success") {
+          setState(() {
+            currentUser = FirebaseAuth.instance.currentUser;
+          });
+          saveUserData();
+        } else {
+          _alert(context, errorMessage[value] ?? "Error");
+        }
+        setState(() {
+          busy = false;
+        });
+      });
+    }
+  }
+
+  int current = 0;
+
+  bool validEmail() {
+    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9.]{2,}$",
+            caseSensitive: false, dotAll: true)
+        .hasMatch(email);
+  }
+
+  void verifyAndNext() {
+    switch (current) {
+      case 0:
+        if (userType == null) {
+          _alert(context, "Please select UserType");
+        } else if (userType == UserType.MESSAGING && ioType == null) {
+          _alert(context, "Please select prefered Input/Output Type");
+        } else {
+          setState(() {
+            current += 1;
+          });
+        }
+        break;
+      case 2:
+        if (email == null) {
+          _alert(context, "Email cannot be empty");
+        } else if (!validEmail()) {
+          _alert(context, "Please enter valid email-id");
+        } else {
+          setState(() {
+            current += 1;
+          });
+        }
+        break;
+      case 1:
+        print(fullName);
+        if (fullName == null || fullName.isEmpty) {
+          _alert(context, "Name cannot be empty");
+        } else {
+          setState(() {
+            current += 1;
+          });
+        }
+        break;
+      case 3:
+        if (password == null || password.length < 6) {
+          _alert(context, "Password cannot be less than 6 characters");
+        } else if (password != cPassword) {
+          _alert(context, "Both passwords should be same");
+        } else {
+          signUp();
+        }
+        break;
+      default:
+    }
+  }
+
+  bool moreInfo1 = false;
+  bool moreInfo2 = false;
+
   @override
   Widget build(BuildContext context) {
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
-        height: double.infinity,
-        width: double.infinity,
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.cyan,
+              Colors.cyanAccent,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: Form(
           key: _signupKey,
-          child: Padding(
-            padding: EdgeInsets.only(left: 20, right: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      "SIGNUP",
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Icon(
-                      Icons.record_voice_over,
-                      size: 50,
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  child: DropdownButton<String>(
-                      icon: Icon(
-                        Icons.arrow_drop_down,
-                        size: 30,
-                      ),
-                      hint: Text(
-                        "Select User type",
-                        textAlign: TextAlign.center,
-                      ),
-                      value: userType,
-                      items: ddItems
-                          .map((value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(
-                                value,
-                                textAlign: TextAlign.center,
-                              )))
-                          .toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          userType = val;
-                        });
-                      }),
-                ),
-                TextFormField(
-                  style: TextStyle(fontSize: 18),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.person,
-                      color: Colors.blue,
-                      size: 25,
-                    ),
-                    filled: true,
-                    labelStyle: TextStyle(fontSize: 18),
-                    hintText: "Full Name",
-                    errorStyle: TextStyle(fontSize: 18),
-                    contentPadding: EdgeInsets.all(10),
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "please enter a valid name";
-                    }
-                    return null;
-                  },
-                  onChanged: (newValue) => setState(() {
-                    fullName = newValue;
-                  }),
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(fontSize: 18),
-                  decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.alternate_email,
-                        color: Colors.blue,
-                        size: 25,
-                      ),
-                      filled: true,
-                      labelStyle: TextStyle(fontSize: 18),
-                      hintText: "email",
-                      errorStyle: TextStyle(fontSize: 18),
-                      contentPadding: EdgeInsets.all(10)),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "please enter an email address";
-                    }
-                    return null;
-                  },
-                  onChanged: (newValue) => setState(() {
-                    email = newValue;
-                  }),
-                ),
-                TextFormField(
-                  style: TextStyle(fontSize: 18),
-                  obscureText: !showPassword,
-                  decoration: InputDecoration(
-                      filled: true,
-                      hintText: "password",
-                      prefixIcon: Icon(
-                        Icons.lock_outline,
-                        color: Colors.blue,
-                        size: 25,
-                      ),
-                      suffixIcon: IconButton(
-                          icon: Icon(
-                            Icons.remove_red_eye,
-                            color: (showPassword
-                                ? Colors.blue
-                                : Colors.black.withOpacity(0.25)),
+          child: Stack(
+            children: [
+              Positioned(
+                top: height * 0.25,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: height * 0.4),
+                    child: Container(
+                      width: width,
+                      padding: EdgeInsets.all(15),
+                      color: Colors.black.withOpacity(0.5),
+                      alignment: Alignment.center,
+                      child: IndexedStack(
+                        index: current,
+                        alignment: AlignmentDirectional.center,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Wrap(
+                                alignment: WrapAlignment.spaceEvenly,
+                                children: [
+                                  DropdownButton<String>(
+                                      icon: Icon(
+                                        Icons.arrow_drop_down,
+                                        size: 30,
+                                      ),
+                                      hint: Text(
+                                        "Select User type",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      value: userType,
+                                      items: ddItems
+                                          .map((value) => DropdownMenuItem(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                textAlign: TextAlign.center,
+                                              )))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          userType = val;
+                                        });
+                                      }),
+                                  IconButton(
+                                    icon: Icon(Icons.info),
+                                    onPressed: () {
+                                      setState(() {
+                                        moreInfo1 = !moreInfo1;
+                                      });
+                                    },
+                                  ),
+                                  (moreInfo1
+                                      ? ClipPath(
+                                          clipper: InfoClipper(),
+                                          child: Container(
+                                            width: width * 0.8,
+                                            height: height * 0.15,
+                                            color: Colors.white,
+                                            padding: EdgeInsets.only(top: 20),
+                                            child: Text(
+                                              'If you are person with dyslexia, select "Dyslexia User" \n\nOtherwise, Select "Messaging User"',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox())
+                                ],
+                              ),
+                              SizedBox(
+                                height: 25,
+                              ),
+                              (userType == UserType.MESSAGING
+                                  ? Wrap(
+                                      alignment: WrapAlignment.spaceEvenly,
+                                      children: [
+                                        DropdownButton<String>(
+                                            icon: Icon(
+                                              Icons.arrow_drop_down,
+                                              size: 30,
+                                            ),
+                                            hint: Text(
+                                              "Select I/O type",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            value: ioType,
+                                            items: ioTypes
+                                                .map(
+                                                    (value) => DropdownMenuItem(
+                                                        value: value,
+                                                        child: Text(
+                                                          value,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        )))
+                                                .toList(),
+                                            onChanged: (val) {
+                                              setState(() {
+                                                ioType = val;
+                                              });
+                                            }),
+                                        IconButton(
+                                          icon: Icon(Icons.info),
+                                          onPressed: () {
+                                            setState(() {
+                                              moreInfo2 = !moreInfo2;
+                                            });
+                                          },
+                                        ),
+                                        (moreInfo2
+                                            ? ClipPath(
+                                                clipper: InfoClipper(),
+                                                child: Container(
+                                                  width: width * 0.8,
+                                                  height: height * 0.15,
+                                                  color: Colors.white,
+                                                  padding:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Text(
+                                                    'If you want to use are person with blindness, select "Voice I/O" \n\nOtherwise, Select "Text I/O"',
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            : SizedBox())
+                                      ],
+                                    )
+                                  : SizedBox())
+                            ],
                           ),
-                          onPressed: () {
-                            setState(() {
-                              showPassword = !showPassword;
-                            });
-                          }),
-                      errorStyle: TextStyle(fontSize: 18),
-                      labelStyle: TextStyle(fontSize: 18),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      contentPadding: EdgeInsets.all(10)),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "please enter password";
-                    }
-                    return null;
-                  },
-                  onChanged: (newValue) => setState(() {
-                    password = newValue;
-                  }),
-                ),
-                TextFormField(
-                  style: TextStyle(fontSize: 18),
-                  obscureText: !showPassword,
-                  decoration: InputDecoration(
-                      filled: true,
-                      hintText: "confirm password",
-                      prefixIcon: Icon(
-                        Icons.lock_outline,
-                        color: Colors.blue,
-                        size: 25,
-                      ),
-                      suffixIcon: IconButton(
-                          icon: Icon(
-                            Icons.remove_red_eye,
-                            color: (showPassword
-                                ? Colors.blue
-                                : Colors.black.withOpacity(0.25)),
+                          TextFormField(
+                            keyboardType: TextInputType.text,
+                            style: TextStyle(fontSize: 18),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.person,
+                                  color: Colors.blue,
+                                  size: 25,
+                                ),
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                filled: true,
+                                labelStyle: TextStyle(fontSize: 18),
+                                hintText: "Your full name",
+                                errorStyle: TextStyle(fontSize: 14),
+                                contentPadding: EdgeInsets.all(10)),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Name cannot be empty";
+                              }
+                              return null;
+                            },
+                            onChanged: (name) => setState(() {
+                              fullName = name.trim();
+                            }),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              showPassword = !showPassword;
-                            });
-                          }),
-                      labelStyle: TextStyle(fontSize: 18),
-                      errorStyle: TextStyle(fontSize: 18),
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      contentPadding: EdgeInsets.all(10)),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "please enter password";
-                    }
-                    return null;
-                  },
-                  onChanged: (newValue) => setState(() {
-                    cPassword = newValue;
-                  }),
-                ),
-                AnimeButton(
-                  // color: Colors.cyan[800],
-                  onPressed: () async {
-                    if (_signupKey.currentState.validate()) {
-                      if (userType == null)
-                        _alert(context, "Select userType");
-                      else if (password != cPassword) {
-                        _alert(context, "passwords does not match");
-                      } else {
-                        setState(() {
-                          status = "Creating account...";
-                        });
-                        await _auth.signUp(email, password).then((value) async {
-                          if (value == "success") {
-                            setState(() {
-                              currentUser = FirebaseAuth.instance.currentUser;
-                            });
-                            saveUserData();
-                          }
-                          setState(() {
-                            status = value;
-                          });
-                        });
-                      }
-                    }
-                  },
-                  child: Text(
-                    "SUBMIT",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
+                          TextFormField(
+                            keyboardType: TextInputType.emailAddress,
+                            style: TextStyle(fontSize: 18),
+                            initialValue: (email == null ? "" : email),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.alternate_email,
+                                  color: Colors.blue,
+                                  size: 25,
+                                ),
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                filled: true,
+                                labelStyle: TextStyle(fontSize: 18),
+                                hintText: "email",
+                                errorStyle: TextStyle(fontSize: 14),
+                                contentPadding: EdgeInsets.all(10)),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "please enter an email address";
+                              }
+                              return null;
+                            },
+                            onChanged: (newValue) => setState(() {
+                              email = newValue.trim();
+                            }),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextFormField(
+                                style: TextStyle(fontSize: 18),
+                                obscureText: !showPassword,
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    hintText: "password",
+                                    prefixIcon: Icon(
+                                      Icons.lock_outline,
+                                      color: Colors.blue,
+                                      size: 25,
+                                    ),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    suffixIcon: IconButton(
+                                        icon: Icon(
+                                          Icons.remove_red_eye,
+                                          color: (showPassword
+                                              ? Colors.blue
+                                              : Colors.black.withOpacity(0.25)),
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            showPassword = !showPassword;
+                                          });
+                                        }),
+                                    errorStyle: TextStyle(fontSize: 14),
+                                    labelStyle: TextStyle(fontSize: 18),
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.never,
+                                    contentPadding: EdgeInsets.all(10)),
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return "please enter password";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (newValue) => setState(() {
+                                  password = newValue;
+                                }),
+                              ),
+                              SizedBox(
+                                height: 25,
+                              ),
+                              TextFormField(
+                                style: TextStyle(fontSize: 18),
+                                obscureText: !showPassword,
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    hintText: "confirm password",
+                                    prefixIcon: Icon(
+                                      Icons.lock_outline,
+                                      color: Colors.blue,
+                                      size: 25,
+                                    ),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30))),
+                                    suffixIcon: IconButton(
+                                        icon: Icon(
+                                          Icons.remove_red_eye,
+                                          color: (showPassword
+                                              ? Colors.blue
+                                              : Colors.black.withOpacity(0.25)),
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            showPassword = !showPassword;
+                                          });
+                                        }),
+                                    labelStyle: TextStyle(fontSize: 18),
+                                    errorStyle: TextStyle(fontSize: 14),
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.never,
+                                    contentPadding: EdgeInsets.all(10)),
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return "please confirm password";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (newValue) => setState(() {
+                                  cPassword = newValue;
+                                }),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                (status == "Creating account..."
-                    ? CircularProgressIndicator(
+              ),
+              Positioned(
+                top: 50,
+                left: 25,
+                child: Text(
+                  "SIGNUP",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Positioned(
+                bottom: height * 0.25,
+                left: width / 2 - 25,
+                child: (!busy
+                    ? SizedBox(
+                        height: 0,
+                        width: 0,
+                      )
+                    : CircularProgressIndicator(
                         strokeWidth: 5,
                         backgroundColor: Colors.white,
-                      )
-                    : SizedBox()),
-                Text(
-                  status,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: (status == "success" ||
-                              status == "Creating account..."
-                          ? Colors.white
-                          : Colors.red)),
-                )
-              ],
-            ),
+                      )),
+              ),
+              Positioned(
+                bottom: height * 0.15,
+                right: 0,
+                left: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    (current == 0
+                        ? SizedBox(
+                            width: width * 0.3,
+                          )
+                        : AnimeButton(
+                            width: width * 0.4,
+                            onPressed: () {
+                              setState(() {
+                                current -= 1;
+                              });
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.arrow_back_ios),
+                                Text(
+                                  "Previous",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          )),
+                    (current < 3
+                        ? AnimeButton(
+                            width: width * 0.4,
+                            onPressed: verifyAndNext,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "Next",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Icon(Icons.arrow_forward_ios),
+                              ],
+                            ),
+                          )
+                        : AnimeButton(
+                            width: width * 0.3,
+                            onPressed: verifyAndNext,
+                            backgroundColor: Colors.green,
+                            child: Text(
+                              "SUBMIT",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ))
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

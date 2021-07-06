@@ -1,9 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hello/about.dart';
 import 'package:hello/auth/authentication.dart';
 import 'package:hello/custom_widgets/anime_button.dart';
 import 'package:hello/messaging/messaging_home.dart';
 import 'package:hello/signup.dart';
+import 'package:hello/verify_email.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -65,8 +66,12 @@ class LoginState extends State<Login> {
 
   bool showPassword = false;
 
+  double width, height;
+
   @override
   Widget build(BuildContext context) {
+    width = MediaQuery.of(context).size.width;
+    height = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
@@ -78,6 +83,7 @@ class LoginState extends State<Login> {
             colors: [
               Colors.cyan,
               Colors.cyanAccent,
+              // Color(0xFF00B7D3),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -102,21 +108,24 @@ class LoginState extends State<Login> {
               ),
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
                 decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.alternate_email_outlined,
-                      color: Colors.black,
-                      size: 25,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    labelStyle: TextStyle(fontSize: 18),
-                    hintText: "email",
-                    errorStyle: TextStyle(fontSize: 18, color: Colors.red),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(30))),
-                    contentPadding: EdgeInsets.all(10)),
+                  prefixIcon: Icon(
+                    Icons.alternate_email_outlined,
+                    size: 25,
+                  ),
+                  // filled: true,
+                  // fillColor: Colors.white,
+                  hintStyle: TextStyle(fontSize: 18, color: Colors.white),
+                  labelStyle: TextStyle(fontSize: 10, color: Colors.white),
+                  hintText: "email",
+                  errorStyle: TextStyle(fontSize: 16, color: Colors.red),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(30))),
+                  contentPadding: EdgeInsets.all(10),
+                ),
                 validator: (value) {
                   if (value.isEmpty) {
                     return "please enter an email address";
@@ -134,12 +143,12 @@ class LoginState extends State<Login> {
                 style: TextStyle(fontSize: 18),
                 obscureText: !showPassword,
                 decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
+                    // filled: true,
+                    // fillColor: Colors.white,
+                    hintStyle: TextStyle(color: Colors.white, fontSize: 18),
                     hintText: "password",
                     prefixIcon: Icon(
                       Icons.lock_outline,
-                      color: Colors.black,
                       size: 25,
                     ),
                     suffixIcon: IconButton(
@@ -157,7 +166,7 @@ class LoginState extends State<Login> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(30))),
                     labelStyle: TextStyle(fontSize: 18),
-                    errorStyle: TextStyle(fontSize: 18),
+                    errorStyle: TextStyle(fontSize: 16, color: Colors.red),
                     floatingLabelBehavior: FloatingLabelBehavior.never,
                     contentPadding: EdgeInsets.all(10)),
                 validator: (value) {
@@ -186,11 +195,16 @@ class LoginState extends State<Login> {
                         status = value;
                       });
                       if (status == "success") {
+                        bool emailVerified =
+                            FirebaseAuth.instance.currentUser.emailVerified;
                         Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    MessagingHome()));
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => (emailVerified
+                                ? MessagingHome()
+                                : MessagingHome()),
+                          ),
+                        );
                       }
                     });
                   }
@@ -204,6 +218,26 @@ class LoginState extends State<Login> {
                       fontWeight: FontWeight.bold),
                 ),
               ),
+              // AnimeButton(
+              //     width: width * 0.4,
+              //     onPressed: () {},
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //       children: [
+              //         SizedBox(
+              //             height: 25,
+              //             width: 25,
+              //             child: Image.network(
+              //                 "https://cdn.iconscout.com/icon/free/png-256/google-152-189813.png")),
+              //         Text(
+              //           "Continue with \nGoogle",
+              //           style: TextStyle(
+              //             color: Colors.white,
+              //           ),
+              //           textAlign: TextAlign.center,
+              //         ),
+              //       ],
+              //     )),
               (status == "Signing in..."
                   ? CircularProgressIndicator(
                       strokeWidth: 5,
@@ -219,17 +253,6 @@ class LoginState extends State<Login> {
                     color: (status == "success" || status == "Signing in..."
                         ? Colors.white
                         : Colors.red)),
-              ),
-              Text(
-                "New to App??",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AboutPage()));
-                },
-                child: Text("about"),
               ),
               AnimeButton(
                 backgroundColor: Colors.blue,
@@ -248,5 +271,101 @@ class LoginState extends State<Login> {
         ),
       ),
     );
+  }
+}
+
+class Tempo extends StatefulWidget {
+  Tempo({key}) : super(key: key);
+
+  @override
+  _TempoState createState() => _TempoState();
+}
+
+class _TempoState extends State<Tempo> {
+  int current = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          IndexedStack(
+            index: current,
+            children: [
+              Container(
+                height: 200,
+                width: 200,
+                color: Colors.cyanAccent,
+                child: Center(
+                  child: Text("Name"),
+                ),
+              ),
+              Column(
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    color: Colors.cyanAccent,
+                    child: Center(
+                      child: Text("Usertype"),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                height: 200,
+                width: 200,
+                color: Colors.cyanAccent,
+                child: Center(
+                  child: Text("Email"),
+                ),
+              ),
+              Column(
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    color: Colors.cyanAccent,
+                    child: Center(
+                      child: Text("Password"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              (current == 0
+                  ? SizedBox()
+                  : ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          current -= 1;
+                        });
+                      },
+                      child: Text("Previous"),
+                    )),
+              (current < 3
+                  ? ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          current += 1;
+                        });
+                      },
+                      child: Text("Next"),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Submit"),
+                    ))
+            ],
+          )
+        ],
+      ),
+    ));
   }
 }

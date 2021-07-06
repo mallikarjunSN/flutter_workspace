@@ -23,6 +23,10 @@ class UserService {
     return MessagingUser.fromJson(qSnap.docs.first);
   }
 
+  Stream<DocumentSnapshot> getMessagingUserAsStream(String uid) {
+    return mUserCollection.doc(uid).snapshots();
+  }
+
   Future<void> updateContactsChatIds(
     MessagingUser mUser,
     String chatId,

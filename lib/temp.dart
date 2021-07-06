@@ -4,7 +4,6 @@ import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/dyslexia/assessments.dart';
 import 'package:hello/auth/authentication.dart';
-import 'package:hello/messaging/messages_ui.dart';
 import 'package:hello/login.dart';
 import 'package:hello/model/progress.dart';
 
@@ -155,16 +154,7 @@ class TempState extends State<Temp> {
                     onPressed: () => Navigator.push(context,
                         MaterialPageRoute(builder: (context) => DemoPage())),
                     child: Text("Goto demo")),
-                IconButton(
-                    icon: Icon(Icons.chat),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MessagesUI(),
-                        ),
-                      );
-                    })
+                IconButton(icon: Icon(Icons.chat), onPressed: () {})
               ],
               expandedHeight: 180.0,
               flexibleSpace: FlexibleSpaceBar(
