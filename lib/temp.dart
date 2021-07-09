@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/dyslexia/assessments.dart';
 import 'package:hello/auth/authentication.dart';
 import 'package:hello/login.dart';
-import 'package:hello/model/progress.dart';
+import 'package:hello/model/user_progress.dart';
 
 import 'package:hello/dyslexia/demo_page.dart';
 

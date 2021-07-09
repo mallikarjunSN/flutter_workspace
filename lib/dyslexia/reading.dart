@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello/dyslexia/reading_page.dart';
-import 'package:hello/model/progress.dart';
+import 'package:hello/model/user_progress.dart';
 
 class ReadingAssessment extends StatefulWidget {
   @override

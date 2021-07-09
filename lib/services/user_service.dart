@@ -1,30 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hello/model/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
-  CollectionReference mUserCollection;
-  CollectionReference dUserCollection;
+  CollectionReference _mUserCollection;
+  CollectionReference _dUserCollection;
 
   UserService() {
-    mUserCollection = FirebaseFirestore.instance.collection("messagingUsers");
-    dUserCollection = FirebaseFirestore.instance.collection("dyslexiaUsers");
+    _mUserCollection = FirebaseFirestore.instance.collection("messagingUsers");
+    _dUserCollection = FirebaseFirestore.instance.collection("dyslexiaUsers");
   }
 
   Future<MessagingUser> getMessagingUserById(String uid) async {
-    DocumentSnapshot doc = await mUserCollection.doc(uid).get();
+    DocumentSnapshot doc = await _mUserCollection.doc(uid).get();
     return MessagingUser.fromJson(doc);
   }
 
   Future<MessagingUser> getMessagingUserByEmail(String email) async {
     QuerySnapshot qSnap =
-        await mUserCollection.where("email", isEqualTo: email).get();
+        await _mUserCollection.where("email", isEqualTo: email).get();
 
     return MessagingUser.fromJson(qSnap.docs.first);
   }
 
   Stream<DocumentSnapshot> getMessagingUserAsStream(String uid) {
-    return mUserCollection.doc(uid).snapshots();
+    return _mUserCollection.doc(uid).snapshots();
+  }
+
+  Future<bool> getUserTypeByEmail(String email) {
+    return _dUserCollection.where("email", isEqualTo: email).get().then((res1) {
+      if (res1.docs.length == 0)
+        return true;
+      else
+        return false;
+    });
   }
 
   Future<void> updateContactsChatIds(
@@ -32,7 +42,7 @@ class UserService {
     String chatId,
     String email,
   ) async {
-    await mUserCollection.doc(mUser.uid).update({
+    await _mUserCollection.doc(mUser.uid).update({
       "contacts": FieldValue.arrayUnion(
         [email],
       ),
@@ -42,7 +52,7 @@ class UserService {
     });
 
     await this.getMessagingUserByEmail(email).then((addedUser) {
-      mUserCollection.doc(addedUser.uid).update({
+      _mUserCollection.doc(addedUser.uid).update({
         "contacts": FieldValue.arrayUnion(
           [mUser.email],
         ),
@@ -53,5 +63,16 @@ class UserService {
         this.getMessagingUserById(FirebaseAuth.instance.currentUser.uid);
       });
     });
+  }
+
+  Future<void> saveUsertype(bool isMessagingUser) async {
+    print("saving usertype $isMessagingUser");
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isMessagingUser", isMessagingUser);
+  }
+
+  Future<bool> getUsertype() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("isMessagingUser");
   }
 }

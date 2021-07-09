@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hello/custom_widgets/my_drawer.dart';
 import 'package:hello/messaging/add_contact.dart';
 import 'package:hello/messaging/messages_ui.dart';
 import 'package:hello/model/chat_model.dart';
 import 'package:hello/model/user_model.dart';
 import 'package:hello/services/chat_service.dart';
+import 'package:hello/services/string_service.dart';
 import 'package:hello/services/user_service.dart';
 
 class MessagingHome extends StatefulWidget {
@@ -60,20 +62,13 @@ class _MessagingHomeState extends State<MessagingHome> {
       appBar: AppBar(
         title: Text("Messaging Home"),
         // backgroundColor: Color.fromRGBO(7, 50, 78, 1.0),
-        actions: [
-          TextButton(
-            child: Icon(
-              Icons.search,
-              color: Colors.white,
-              size: 30,
-            ),
-            onPressed: () {},
-          )
-        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.person_add_alt_1_sharp),
-        onPressed: _addContact,
+      floatingActionButton: Semantics(
+        child: FloatingActionButton(
+          tooltip: "Add new contact",
+          child: Icon(Icons.person_add_alt_1_sharp),
+          onPressed: _addContact,
+        ),
       ),
       body: Center(
           child: StreamBuilder<DocumentSnapshot>(
@@ -94,9 +89,16 @@ class _MessagingHomeState extends State<MessagingHome> {
                         .map((doc) => ChatDetails.fromJson(doc))
                         .toList();
 
+                    int count = 0;
+
                     return ListView(
+                      semanticChildCount: allChats.length,
+                      addSemanticIndexes: true,
                       children: allChats.map((chat) {
-                        return ChatTile(cd: chat);
+                        count++;
+                        return Semantics(
+                            label: "chat $count of ${allChats.length}",
+                            child: ChatTile(cd: chat));
                       }).toList(),
                     );
                   } else if (snapshot.hasError) {
@@ -134,31 +136,39 @@ class _ChatTileState extends State<ChatTile> {
     showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
+          return Dialog(
             backgroundColor: Colors.transparent,
-            actionsPadding: EdgeInsets.zero,
-            contentPadding: EdgeInsets.zero,
-            titlePadding: EdgeInsets.zero,
-            buttonPadding: EdgeInsets.zero,
-            content: SizedBox(
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      color: Colors.white,
-                      icon: Icon(Icons.close),
+            child: Semantics(
+              image: true,
+              onTapHint: "close",
+              hint: "viewing display picture of $contactName",
+              excludeSemantics: true,
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: SizedBox(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Semantics(
+                        excludeSemantics: true,
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          color: Colors.white,
+                          icon: Icon(Icons.close),
+                        ),
+                      ),
                     ),
-                  ),
-                  Image.asset(
-                    "assets/user.png",
-                    fit: BoxFit.fill,
-                  ),
-                ],
+                    Image.asset(
+                      "assets/user.png",
+                      fit: BoxFit.fill,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -169,31 +179,31 @@ class _ChatTileState extends State<ChatTile> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: double.infinity,
-          child: ListTile(
-            tileColor: (!longPressed ? Colors.transparent : Colors.cyan),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => MessagesUI(
-                    chatId: widget.cd.chatId,
-                    contactName: contactName,
+    return Semantics(
+      label: "with $contactName",
+      onTapHint: "view chat or send new messages",
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ListTile(
+              tileColor: Colors.black.withOpacity(0.05),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MessagesUI(
+                      chatId: widget.cd.chatId,
+                      contactName: StringService().capitalize(contactName),
+                    ),
                   ),
-                ),
-              );
-            },
-            onLongPress: () {
-              setState(() {
-                longPressed = !longPressed;
-              });
-            },
-            contentPadding:
-                EdgeInsets.only(bottom: 2.5, top: 2.5, left: 5, right: 5),
-            leading: GestureDetector(
+                );
+              },
+              contentPadding:
+                  EdgeInsets.only(bottom: 2.5, top: 2.5, left: 5, right: 5),
+              leading: FloatingActionButton(
+                tooltip: "view display picture of $contactName",
+                heroTag: null,
                 child: Container(
                   padding: EdgeInsets.all(1),
                   decoration: BoxDecoration(
@@ -205,49 +215,95 @@ class _ChatTileState extends State<ChatTile> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                onTap: showDp),
-            subtitle: Text(
-              widget.cd.lastMessage ?? "Start messaging",
-              style: TextStyle(
-                fontSize: 15,
+                onPressed: showDp,
+              ),
+              subtitle: FutureBuilder(
+                future: ChatService().getRecentMessage(widget.cd.chatId),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasData) {
+                    print(snapshot.data.docs.length);
+                    var data;
+                    String message;
+                    String lastMessageOn;
+                    if (snapshot.data.docs.length != 0) {
+                      data = snapshot.data.docs.first.data()
+                          as Map<String, dynamic>;
+                      message = data["content"];
+                      lastMessageOn =
+                          StringService().getTimeString(data["time"]);
+                    } else {
+                      message = "Start messaging";
+                    }
+
+                    return Semantics(
+                      hint: "last message $message",
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            StringService().formatLongMessage(message) ??
+                                "Start messaging",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.cyanAccent,
+                            ),
+                          ),
+                          Semantics(
+                            label:
+                                "last message on ${DateTime.now().toString()}",
+                            excludeSemantics: true,
+                            child: Text(
+                              lastMessageOn == null
+                                  ? "new chat"
+                                  : lastMessageOn,
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text("Error");
+                  }
+                  return Text("Loading...");
+                },
+              ),
+              title: Semantics(
+                excludeSemantics: true,
+                child: FutureBuilder<MessagingUser>(
+                  future: UserService().getMessagingUserByEmail(
+                      (widget.cd.participantsEmail[0] ==
+                              FirebaseAuth.instance.currentUser.email
+                          ? widget.cd.participantsEmail[1]
+                          : widget.cd.participantsEmail[0])),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      contactName = snapshot.data.fullName;
+                      return Text(
+                        StringService().capitalize(contactName),
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text("Error");
+                    } else
+                      return Text("Loading..");
+                  },
+                ),
               ),
             ),
-            title: FutureBuilder<MessagingUser>(
-              future: UserService().getMessagingUserByEmail(
-                  (widget.cd.participantsEmail[0] ==
-                          FirebaseAuth.instance.currentUser.email
-                      ? widget.cd.participantsEmail[1]
-                      : widget.cd.participantsEmail[0])),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  contactName = snapshot.data.fullName;
-                  return Text(
-                    snapshot.data.fullName,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  );
-                } else if (snapshot.hasError) {
-                  return Text("Error");
-                } else
-                  return Text("Loading..");
-              },
-            ),
-            trailing: Text(
-              widget.cd.lastMessageOn == null
-                  ? "new chat"
-                  : widget.cd.lastMessageOn.toDate().toString(),
-              style: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
-          ),
+            Divider(
+              indent: 75,
+              endIndent: 60,
+              thickness: 1.5,
+              height: 5,
+            )
+          ],
         ),
-        Divider(
-          thickness: 1.0,
-          indent: MediaQuery.of(context).size.width * 0.21,
-          endIndent: 20,
-        )
-      ],
+      ),
     );
   }
 }

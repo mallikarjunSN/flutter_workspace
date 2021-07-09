@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/services/chat_service.dart';
+import 'package:hello/services/string_service.dart';
 
 class MessagesUI extends StatefulWidget {
   MessagesUI({@required this.chatId, @required this.contactName, key})
@@ -78,10 +80,27 @@ class _MessagesUIState extends State<MessagesUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [Text(widget.contactName ?? "ugh"), Icon(Icons.chat)],
-        ),
+        title: Text(StringService().capitalize(widget.contactName) ?? "ugh"),
+        actions: [
+          IconButton(
+            icon: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.block_outlined,
+                  color: Colors.red,
+                  size: 25,
+                ),
+                Icon(
+                  Icons.block_outlined,
+                  color: Colors.red,
+                  size: 21,
+                ),
+              ],
+            ),
+            onPressed: () {},
+          )
+        ],
         centerTitle: true,
       ),
       body: Center(
@@ -89,8 +108,6 @@ class _MessagesUIState extends State<MessagesUI> {
           stream: ChatService().getMessagesStream(widget.chatId.trim()),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasData) {
-              print(widget.chatId);
-              print(snapshot.data.docs.length);
               return Stack(
                 fit: StackFit.expand,
                 children: [
@@ -179,8 +196,91 @@ class _MessagesUIState extends State<MessagesUI> {
   }
 }
 
-class MessageContainer extends StatelessWidget {
-  const MessageContainer({
+class ChatBubble extends CustomPainter {
+  final Color color;
+  final Alignment alignment;
+
+  ChatBubble({
+    @required this.color,
+    this.alignment,
+  });
+
+  var _radius = 10.0;
+  var _x = 10.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (alignment == Alignment.centerRight) {
+      canvas.drawRRect(
+          RRect.fromLTRBAndCorners(
+            0,
+            0,
+            size.width - 8,
+            size.height,
+            bottomLeft: Radius.circular(_radius),
+            topRight: Radius.circular(_radius),
+            topLeft: Radius.circular(_radius),
+          ),
+          Paint()
+            ..color = this.color
+            ..style = PaintingStyle.fill);
+      var path = new Path();
+      path.moveTo(size.width - _x, size.height - 20);
+      path.lineTo(size.width - _x, size.height);
+      path.lineTo(size.width, size.height);
+      canvas.clipPath(path);
+      canvas.drawRRect(
+          RRect.fromLTRBAndCorners(
+            size.width - _x,
+            0.0,
+            size.width,
+            size.height,
+            topRight: Radius.circular(_radius),
+          ),
+          Paint()
+            ..color = this.color
+            ..style = PaintingStyle.fill);
+    } else {
+      canvas.drawRRect(
+          RRect.fromLTRBAndCorners(
+            _x,
+            0,
+            size.width,
+            size.height,
+            bottomRight: Radius.circular(_radius),
+            topRight: Radius.circular(_radius),
+            topLeft: Radius.circular(_radius),
+          ),
+          Paint()
+            ..color = this.color
+            ..style = PaintingStyle.fill);
+      var path = new Path();
+      path.moveTo(0, size.height);
+      path.lineTo(_x, size.height);
+      path.lineTo(_x, size.height - 20);
+      canvas.clipPath(path);
+      canvas.drawRRect(
+          RRect.fromLTRBAndCorners(
+            0,
+            0.0,
+            _x,
+            size.height,
+            topRight: Radius.circular(_radius),
+          ),
+          Paint()
+            ..color = this.color
+            ..style = PaintingStyle.fill);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+class MessageContainer extends StatefulWidget {
+  MessageContainer({
     @required this.message,
     @required this.currentUserUid,
     key,
@@ -190,43 +290,83 @@ class MessageContainer extends StatelessWidget {
 
   final String currentUserUid;
 
-  String getTimeString(Timestamp time) {
-    return time.toDate().toString();
-  }
+  @override
+  _MessageContainerState createState() => _MessageContainerState();
+}
+
+class _MessageContainerState extends State<MessageContainer> {
+  bool received = false;
+
+  Alignment alignment = Alignment.centerRight;
 
   @override
   Widget build(BuildContext context) {
+    received = widget.currentUserUid != widget.message.authorUid;
+    alignment = (received ? Alignment.centerLeft : Alignment.centerRight);
     return Align(
-      alignment: (currentUserUid == message.authorUid
-          ? Alignment.centerRight
-          : Alignment.centerLeft),
-      child: ConstrainedBox(
+      alignment: alignment,
+      child: Container(
         constraints:
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-        child: Container(
-          padding: EdgeInsets.all(10),
-          margin: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: Colors.cyan,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                message.content ?? "default",
-                style: TextStyle(fontSize: 18),
-                textAlign: (currentUserUid == message.authorUid
-                    ? TextAlign.right
-                    : TextAlign.left),
+        margin: EdgeInsets.only(bottom: 5),
+        child: CustomPaint(
+          painter: ChatBubble(
+              color: Colors.green.withOpacity(0.5), alignment: alignment),
+          child: Container(
+            padding: EdgeInsets.only(top: 5, bottom: 5, left: 15, right: 15),
+            child: SizedBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(bottom: 5),
+                    child: Text(
+                      widget.message.content ?? "default",
+                      style: TextStyle(fontSize: 18),
+                      textAlign: (!received ? TextAlign.right : TextAlign.left),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                          ),
+                          Text(
+                            widget.message.time.toDate().day.toString(),
+                            style: TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
+                      ),
+                      Text(
+                        StringService().getTimeString(widget.message.time),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      (received
+                          ? SizedBox()
+                          : Icon(
+                              (widget.message.status == 1
+                                  ? Icons.check
+                                  : Icons.remove_red_eye_rounded),
+                              size: 14,
+                            ))
+                    ],
+                  ),
+                ],
               ),
-              Text(
-                getTimeString(message.time),
-                style: TextStyle(
-                  fontSize: 10,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

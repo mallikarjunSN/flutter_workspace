@@ -170,29 +170,42 @@ class _AddContactPageState extends State<AddContactPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      DialogButton(
-                        color: Colors.red,
-                        icon: Icons.cancel,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                      Semantics(
+                        label: "Cancel",
+                        button: true,
+                        onTapHint: "Cancel Adding new contact",
+                        child: DialogButton(
+                          color: Colors.red,
+                          icon: Icons.cancel,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
                       ),
-                      DialogButton(
-                        icon: Icons.search,
-                        color: (validEmail() ? Colors.amber : Colors.grey),
-                        onPressed: () => _search(mUser),
+                      Semantics(
+                        label: "Search Contact",
+                        onTapHint: "search new contact",
+                        button: true,
+                        child: DialogButton(
+                          icon: Icons.search,
+                          color: (validEmail() ? Colors.amber : Colors.grey),
+                          onPressed: () => _search(mUser),
+                        ),
                       ),
-                      DialogButton(
-                        icon: Icons.person_add_alt_1_sharp,
-                        color: (searchData == null && !validEmail()
-                            ? Colors.grey
-                            : Colors.green),
-                        onPressed: () => _addContact(mUser),
+                      Semantics(
+                        label: "Add Contact",
+                        onTapHint: "Add the contact",
+                        button: true,
+                        child: DialogButton(
+                          icon: Icons.person_add_alt_1_sharp,
+                          color: (searchData == null && !validEmail()
+                              ? Colors.grey
+                              : Colors.green),
+                          onPressed: () => _addContact(mUser),
+                        ),
                       )
                     ],
                   ),
-                  ElevatedButton(
-                      onPressed: validEmail, child: Icon(Icons.badge))
                 ],
               ),
             );

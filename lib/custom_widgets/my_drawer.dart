@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/auth/authentication.dart';
+import 'package:hello/common/report_issues.dart';
 import 'package:hello/custom_widgets/toggle_botton.dart';
 import 'package:hello/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +43,16 @@ class _MyDrawerState extends State<MyDrawer> {
         setTheme(false);
       }
     } catch (e) {}
+  }
+
+  void showAbout() {
+    showAboutDialog(
+      context: context,
+      applicationName: "Vox",
+      applicationIcon: Icon(FontAwesomeIcons.vectorSquare),
+      applicationLegalese: "Free and open source",
+      applicationVersion: "1.0.0",
+    );
   }
 
   void logout() {
@@ -158,10 +169,19 @@ class _MyDrawerState extends State<MyDrawer> {
           ListTile(
             leading: Icon(FontAwesomeIcons.envelope),
             title: Text("Feedback/Report issues"),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => FeedbackAndIssues()));
+            },
           ),
           ListTile(
             leading: Icon(FontAwesomeIcons.android),
             title: Text("Version 1.0.0"),
+            onTap: () {
+              Navigator.pop(context);
+              showAbout();
+            },
           ),
           ListTile(
             leading: Icon(FontAwesomeIcons.googlePlay),

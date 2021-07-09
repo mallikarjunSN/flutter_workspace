@@ -6,11 +6,13 @@ class DyslexiaUser {
   String uid;
   String fullName;
   String email;
+  double avgAccuracy;
 
   DyslexiaUser({
     this.uid,
     this.fullName,
     this.email,
+    this.avgAccuracy,
   });
 
   DyslexiaUser.fromJson(DocumentSnapshot doc) {
@@ -18,6 +20,7 @@ class DyslexiaUser {
     this.uid = doc.id;
     this.fullName = data["fullName"];
     this.email = data["email"];
+    this.avgAccuracy = data["avgAccuracy"] ?? 0.0;
   }
 
   // Map toJson(){

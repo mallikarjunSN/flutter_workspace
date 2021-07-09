@@ -20,6 +20,8 @@ class CoolColor {
   List<Color> _colors = [];
   int val;
 
+  static final Color primaryColor = Color(0xff00b294);
+
   final List<int> _colorCodes = [
     0xEC008C,
     0xFC6767,
@@ -28,7 +30,7 @@ class CoolColor {
     0x79CBCA,
     0xE684AE, //c2
     0xFF637F, //
-    0x16A085
+    0x16A085,
   ];
 
   List<Color> getRandomColors(int n) {

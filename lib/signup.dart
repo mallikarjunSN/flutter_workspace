@@ -8,6 +8,7 @@ import 'package:hello/custom_widgets/anime_button.dart';
 import 'package:hello/model/user_model.dart';
 import 'package:hello/services/user_service.dart';
 import 'package:hello/verify_email.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -80,6 +81,7 @@ class SignupState extends State<Signup> {
   User currentUser;
 
   Future<void> saveUserData() async {
+    await UserService().saveUsertype(userType == UserType.MESSAGING);
     if (userType == UserType.MESSAGING)
       await _ffStore
           .collection("messagingUsers")
@@ -100,6 +102,7 @@ class SignupState extends State<Signup> {
           .set({
         "fullName": fullName,
         "email": currentUser.email,
+        "avgAccuracy": 0.0,
       }).then((value) {
         currentUser.sendEmailVerification();
       });
@@ -153,7 +156,8 @@ class SignupState extends State<Signup> {
   double height, width;
 
   Map<String, String> errorMessage = {
-    "email-already-in-use": "Please use different email-id"
+    "email-already-in-use":
+        "Entered email-id is being used by another user, Please use different email-id"
   };
 
   void signUp() async {
@@ -244,307 +248,310 @@ class SignupState extends State<Signup> {
       body: Container(
         height: height,
         width: width,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.cyan,
-              Colors.cyanAccent,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
         child: Form(
           key: _signupKey,
           child: Stack(
             children: [
+              Image.network(
+                "https://i.pinimg.com/originals/fd/e6/03/fde603acbda0f7f1c2cc806890b68476.jpg",
+                height: height,
+                width: width,
+                fit: BoxFit.fill,
+              ),
               Positioned(
                 top: height * 0.25,
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: height * 0.4),
-                    child: Container(
-                      width: width,
-                      padding: EdgeInsets.all(15),
-                      color: Colors.black.withOpacity(0.5),
-                      alignment: Alignment.center,
-                      child: IndexedStack(
-                        index: current,
-                        alignment: AlignmentDirectional.center,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Wrap(
-                                alignment: WrapAlignment.spaceEvenly,
-                                children: [
-                                  DropdownButton<String>(
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
-                                        size: 30,
-                                      ),
-                                      hint: Text(
-                                        "Select User type",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      value: userType,
-                                      items: ddItems
-                                          .map((value) => DropdownMenuItem(
-                                              value: value,
-                                              child: Text(
-                                                value,
-                                                textAlign: TextAlign.center,
-                                              )))
-                                          .toList(),
-                                      onChanged: (val) {
+                right: 10,
+                left: 10,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: height * 0.4),
+                      child: Container(
+                        width: width,
+                        height: 100,
+                        padding: EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                        ),
+                        alignment: Alignment.center,
+                        child: IndexedStack(
+                          index: current,
+                          alignment: AlignmentDirectional.center,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    DropdownButton<String>(
+                                        icon: Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 30,
+                                        ),
+                                        hint: Text(
+                                          "Select User type",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        value: userType,
+                                        items: ddItems
+                                            .map((value) => DropdownMenuItem(
+                                                value: value,
+                                                child: Text(
+                                                  value,
+                                                  textAlign: TextAlign.center,
+                                                )))
+                                            .toList(),
+                                        onChanged: (val) {
+                                          setState(() {
+                                            userType = val;
+                                          });
+                                        }),
+                                    IconButton(
+                                      icon: Icon(Icons.info),
+                                      onPressed: () {
                                         setState(() {
-                                          userType = val;
+                                          moreInfo2 = false;
+                                          moreInfo1 = !moreInfo1;
                                         });
-                                      }),
-                                  IconButton(
-                                    icon: Icon(Icons.info),
-                                    onPressed: () {
-                                      setState(() {
-                                        moreInfo1 = !moreInfo1;
-                                      });
-                                    },
-                                  ),
-                                  (moreInfo1
-                                      ? ClipPath(
-                                          clipper: InfoClipper(),
-                                          child: Container(
-                                            width: width * 0.8,
-                                            height: height * 0.15,
-                                            color: Colors.white,
-                                            padding: EdgeInsets.only(top: 20),
-                                            child: Text(
-                                              'If you are person with dyslexia, select "Dyslexia User" \n\nOtherwise, Select "Messaging User"',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontStyle: FontStyle.italic,
-                                                color: Colors.black,
+                                      },
+                                    ),
+                                    (moreInfo1
+                                        ? ClipPath(
+                                            clipper: InfoClipper(),
+                                            child: Container(
+                                              width: width * 0.8,
+                                              height: height * 0.15,
+                                              color: Colors.white,
+                                              padding: EdgeInsets.only(top: 20),
+                                              child: Text(
+                                                'If you are person with dyslexia, and want to use app as "Learning Hub" select "Dyslexia User" \n\nOtherwise, Select "Messaging User"',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Colors.black,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )
-                                      : SizedBox())
-                                ],
-                              ),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              (userType == UserType.MESSAGING
-                                  ? Wrap(
-                                      alignment: WrapAlignment.spaceEvenly,
-                                      children: [
-                                        DropdownButton<String>(
-                                            icon: Icon(
-                                              Icons.arrow_drop_down,
-                                              size: 30,
-                                            ),
-                                            hint: Text(
-                                              "Select I/O type",
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            value: ioType,
-                                            items: ioTypes
-                                                .map(
-                                                    (value) => DropdownMenuItem(
-                                                        value: value,
-                                                        child: Text(
-                                                          value,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        )))
-                                                .toList(),
-                                            onChanged: (val) {
+                                          )
+                                        : SizedBox())
+                                  ],
+                                ),
+                                (userType == UserType.MESSAGING
+                                    ? Wrap(
+                                        alignment: WrapAlignment.spaceEvenly,
+                                        children: [
+                                          DropdownButton<String>(
+                                              icon: Icon(
+                                                Icons.arrow_drop_down,
+                                                size: 30,
+                                              ),
+                                              hint: Text(
+                                                "Select I/O type",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              value: ioType,
+                                              items: ioTypes
+                                                  .map((value) =>
+                                                      DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(
+                                                            value,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          )))
+                                                  .toList(),
+                                              onChanged: (val) {
+                                                setState(() {
+                                                  ioType = val;
+                                                });
+                                              }),
+                                          IconButton(
+                                            icon: Icon(Icons.info),
+                                            onPressed: () {
                                               setState(() {
-                                                ioType = val;
+                                                moreInfo1 = false;
+                                                moreInfo2 = !moreInfo2;
                                               });
-                                            }),
-                                        IconButton(
-                                          icon: Icon(Icons.info),
-                                          onPressed: () {
-                                            setState(() {
-                                              moreInfo2 = !moreInfo2;
-                                            });
-                                          },
-                                        ),
-                                        (moreInfo2
-                                            ? ClipPath(
-                                                clipper: InfoClipper(),
-                                                child: Container(
-                                                  width: width * 0.8,
-                                                  height: height * 0.15,
-                                                  color: Colors.white,
-                                                  padding:
-                                                      EdgeInsets.only(top: 20),
-                                                  child: Text(
-                                                    'If you want to use are person with blindness, select "Voice I/O" \n\nOtherwise, Select "Text I/O"',
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                      color: Colors.black,
+                                            },
+                                          ),
+                                          (moreInfo2
+                                              ? ClipPath(
+                                                  clipper: InfoClipper(),
+                                                  child: Container(
+                                                    width: width * 0.8,
+                                                    height: height * 0.15,
+                                                    color: Colors.white,
+                                                    padding: EdgeInsets.only(
+                                                        top: 20),
+                                                    child: Text(
+                                                      'If you have blindness, and prefer Voice input and out, select "Voice I/O" \n\nOtherwise, Select "Text I/O"',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color: Colors.black,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              )
-                                            : SizedBox())
-                                      ],
-                                    )
-                                  : SizedBox())
-                            ],
-                          ),
-                          TextFormField(
-                            keyboardType: TextInputType.text,
-                            style: TextStyle(fontSize: 18),
-                            decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person,
-                                  color: Colors.blue,
-                                  size: 25,
+                                                )
+                                              : SizedBox())
+                                        ],
+                                      )
+                                    : SizedBox())
+                              ],
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.text,
+                              style: TextStyle(fontSize: 18),
+                              decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person,
+                                    color: Colors.blue,
+                                    size: 25,
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(30))),
+                                  filled: true,
+                                  labelStyle: TextStyle(fontSize: 18),
+                                  hintText: "Your full name",
+                                  errorStyle: TextStyle(fontSize: 14),
+                                  contentPadding: EdgeInsets.all(10)),
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return "Name cannot be empty";
+                                }
+                                return null;
+                              },
+                              onChanged: (name) => setState(() {
+                                fullName = name.trim();
+                              }),
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.emailAddress,
+                              style: TextStyle(fontSize: 18),
+                              initialValue: (email == null ? "" : email),
+                              decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.alternate_email,
+                                    color: Colors.blue,
+                                    size: 25,
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(30))),
+                                  filled: true,
+                                  labelStyle: TextStyle(fontSize: 18),
+                                  hintText: "email",
+                                  errorStyle: TextStyle(fontSize: 14),
+                                  contentPadding: EdgeInsets.all(10)),
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return "please enter an email address";
+                                }
+                                return null;
+                              },
+                              onChanged: (newValue) => setState(() {
+                                email = newValue.trim();
+                              }),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                TextFormField(
+                                  style: TextStyle(fontSize: 18),
+                                  obscureText: !showPassword,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      hintText: "password",
+                                      prefixIcon: Icon(
+                                        Icons.lock_outline,
+                                        color: Colors.blue,
+                                        size: 25,
+                                      ),
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30))),
+                                      suffixIcon: IconButton(
+                                          icon: Icon(
+                                            Icons.remove_red_eye,
+                                            color: (showPassword
+                                                ? Colors.blue
+                                                : Colors.black
+                                                    .withOpacity(0.25)),
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              showPassword = !showPassword;
+                                            });
+                                          }),
+                                      errorStyle: TextStyle(fontSize: 14),
+                                      labelStyle: TextStyle(fontSize: 18),
+                                      floatingLabelBehavior:
+                                          FloatingLabelBehavior.never,
+                                      contentPadding: EdgeInsets.all(10)),
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return "please enter password";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (newValue) => setState(() {
+                                    password = newValue;
+                                  }),
                                 ),
-                                border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(30))),
-                                filled: true,
-                                labelStyle: TextStyle(fontSize: 18),
-                                hintText: "Your full name",
-                                errorStyle: TextStyle(fontSize: 14),
-                                contentPadding: EdgeInsets.all(10)),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return "Name cannot be empty";
-                              }
-                              return null;
-                            },
-                            onChanged: (name) => setState(() {
-                              fullName = name.trim();
-                            }),
-                          ),
-                          TextFormField(
-                            keyboardType: TextInputType.emailAddress,
-                            style: TextStyle(fontSize: 18),
-                            initialValue: (email == null ? "" : email),
-                            decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.alternate_email,
-                                  color: Colors.blue,
-                                  size: 25,
+                                TextFormField(
+                                  style: TextStyle(fontSize: 18),
+                                  obscureText: !showPassword,
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      hintText: "confirm password",
+                                      prefixIcon: Icon(
+                                        Icons.lock_outline,
+                                        color: Colors.blue,
+                                        size: 25,
+                                      ),
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30))),
+                                      suffixIcon: IconButton(
+                                          icon: Icon(
+                                            Icons.remove_red_eye,
+                                            color: (showPassword
+                                                ? Colors.blue
+                                                : Colors.black
+                                                    .withOpacity(0.25)),
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              showPassword = !showPassword;
+                                            });
+                                          }),
+                                      labelStyle: TextStyle(fontSize: 18),
+                                      errorStyle: TextStyle(fontSize: 14),
+                                      floatingLabelBehavior:
+                                          FloatingLabelBehavior.never,
+                                      contentPadding: EdgeInsets.all(10)),
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return "please confirm password";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (newValue) => setState(() {
+                                    cPassword = newValue;
+                                  }),
                                 ),
-                                border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(30))),
-                                filled: true,
-                                labelStyle: TextStyle(fontSize: 18),
-                                hintText: "email",
-                                errorStyle: TextStyle(fontSize: 14),
-                                contentPadding: EdgeInsets.all(10)),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return "please enter an email address";
-                              }
-                              return null;
-                            },
-                            onChanged: (newValue) => setState(() {
-                              email = newValue.trim();
-                            }),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              TextFormField(
-                                style: TextStyle(fontSize: 18),
-                                obscureText: !showPassword,
-                                decoration: InputDecoration(
-                                    filled: true,
-                                    hintText: "password",
-                                    prefixIcon: Icon(
-                                      Icons.lock_outline,
-                                      color: Colors.blue,
-                                      size: 25,
-                                    ),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(30))),
-                                    suffixIcon: IconButton(
-                                        icon: Icon(
-                                          Icons.remove_red_eye,
-                                          color: (showPassword
-                                              ? Colors.blue
-                                              : Colors.black.withOpacity(0.25)),
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            showPassword = !showPassword;
-                                          });
-                                        }),
-                                    errorStyle: TextStyle(fontSize: 14),
-                                    labelStyle: TextStyle(fontSize: 18),
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.never,
-                                    contentPadding: EdgeInsets.all(10)),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return "please enter password";
-                                  }
-                                  return null;
-                                },
-                                onChanged: (newValue) => setState(() {
-                                  password = newValue;
-                                }),
-                              ),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              TextFormField(
-                                style: TextStyle(fontSize: 18),
-                                obscureText: !showPassword,
-                                decoration: InputDecoration(
-                                    filled: true,
-                                    hintText: "confirm password",
-                                    prefixIcon: Icon(
-                                      Icons.lock_outline,
-                                      color: Colors.blue,
-                                      size: 25,
-                                    ),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(30))),
-                                    suffixIcon: IconButton(
-                                        icon: Icon(
-                                          Icons.remove_red_eye,
-                                          color: (showPassword
-                                              ? Colors.blue
-                                              : Colors.black.withOpacity(0.25)),
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            showPassword = !showPassword;
-                                          });
-                                        }),
-                                    labelStyle: TextStyle(fontSize: 18),
-                                    errorStyle: TextStyle(fontSize: 14),
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.never,
-                                    contentPadding: EdgeInsets.all(10)),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return "please confirm password";
-                                  }
-                                  return null;
-                                },
-                                onChanged: (newValue) => setState(() {
-                                  cPassword = newValue;
-                                }),
-                              ),
-                            ],
-                          )
-                        ],
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -552,12 +559,13 @@ class SignupState extends State<Signup> {
               ),
               Positioned(
                 top: 50,
-                left: 25,
+                left: width / 3,
                 child: Text(
                   "SIGNUP",
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 30,
+                      color: Colors.cyanAccent,
+                      fontSize: 40,
                       fontWeight: FontWeight.bold),
                 ),
               ),

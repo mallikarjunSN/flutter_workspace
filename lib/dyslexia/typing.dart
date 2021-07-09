@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hello/model/progress.dart';
+import 'package:hello/model/user_progress.dart';
 import 'package:string_similarity/string_similarity.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'custom_dialog.dart';

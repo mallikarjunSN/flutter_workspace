@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/auth/authentication.dart';
 import 'package:hello/custom_widgets/anime_button.dart';
+import 'package:hello/dyslexia/dyslexia_home.dart';
 import 'package:hello/messaging/messaging_home.dart';
+import 'package:hello/services/user_service.dart';
 import 'package:hello/signup.dart';
 import 'package:hello/verify_email.dart';
 
@@ -65,6 +67,52 @@ class LoginState extends State<Login> {
   String status = " ";
 
   bool showPassword = false;
+
+  void login() async {
+    if (_loginKey.currentState.validate()) {
+      setState(() {
+        status = "Signing in...";
+      });
+      await _auth.signIn(email, password).then((value) {
+        setState(() {
+          status = value;
+        });
+        if (status == "success") {
+          bool emailVerified = FirebaseAuth.instance.currentUser.emailVerified;
+
+          if (emailVerified) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => VerifyEmail(),
+              ),
+            );
+          } else {
+            UserService()
+                .getUserTypeByEmail(FirebaseAuth.instance.currentUser.email)
+                .then((isMessagingUser) async {
+              await UserService().saveUsertype(isMessagingUser);
+              if (isMessagingUser) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => MessagingHome(),
+                  ),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => DyslexiaHome(),
+                  ),
+                );
+              }
+            });
+          }
+        }
+      });
+    }
+  }
 
   double width, height;
 
@@ -183,32 +231,7 @@ class LoginState extends State<Login> {
                 height: 60,
                 width: 100,
                 backgroundColor: Colors.amberAccent,
-                onPressed: () async {
-                  if (_loginKey.currentState.validate()) {
-                    print("valid");
-                    setState(() {
-                      status = "Signing in...";
-                    });
-                    // Future<bool> status =
-                    await _auth.signIn(email, password).then((value) {
-                      setState(() {
-                        status = value;
-                      });
-                      if (status == "success") {
-                        bool emailVerified =
-                            FirebaseAuth.instance.currentUser.emailVerified;
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => (emailVerified
-                                ? MessagingHome()
-                                : MessagingHome()),
-                          ),
-                        );
-                      }
-                    });
-                  }
-                },
+                onPressed: login,
                 child: Text(
                   "Login",
                   textAlign: TextAlign.center,

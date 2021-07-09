@@ -1,3 +1,66 @@
+class ReadingWord {
+  String word;
+  String level;
+  String syllables;
+  String syllablesPron;
+  double lastAccuracy;
+  DateTime lastAttemptOn;
+
+  ReadingWord({
+    this.word,
+    this.level,
+    this.syllables,
+    this.syllablesPron,
+    this.lastAccuracy,
+    this.lastAttemptOn,
+  });
+
+  ReadingWord.fromJsom(Map<String, dynamic> data) {
+    this.word = data["word"];
+    this.level = data["level"];
+    this.syllables = data["syllables"];
+    this.syllablesPron = data["syllablesPron"];
+    this.lastAccuracy = data["lastAccuracy"];
+    this.lastAttemptOn = data["lastAttemptOn"];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "WORD": this.word,
+      "SYLLABLES": this.syllables,
+      "SYLLABLES_PRON": this.syllablesPron,
+      "LAST_ACCURACY": this.lastAccuracy,
+      "LAST_ATTEMPT_ON": this.lastAttemptOn,
+    };
+  }
+}
+
+class TypingWord {
+  String word;
+  double lastAccuracy;
+  DateTime lastAttemptOn;
+
+  TypingWord({
+    this.word,
+    this.lastAccuracy,
+    this.lastAttemptOn,
+  });
+
+  TypingWord.fromJsom(Map<String, dynamic> data) {
+    this.word = data["WORD"];
+    this.lastAccuracy = data["LAST_ACCURACY"];
+    this.lastAttemptOn = data["LAST_ATTEMPT_ON"];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "WORD": this.word,
+      "LAST_ACCURACY": this.lastAccuracy,
+      "LAST_ATTEMPT_ON": this.lastAttemptOn,
+    };
+  }
+}
+
 class Rwords {
   static List<List<String>> beginner = [
     ["the", "bus", "best", "in", "out"],

@@ -2,20 +2,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hello/messaging/messages_ui.dart';
 
 class ChatService {
-  CollectionReference chatsReference;
+  CollectionReference _chatsReference;
 
   ChatService() {
-    chatsReference = FirebaseFirestore.instance.collection("chats");
+    _chatsReference = FirebaseFirestore.instance.collection("chats");
   }
 
   Stream<QuerySnapshot> getAllChatDetails(List<String> chatIds) {
-    return chatsReference
+    return _chatsReference
         .where(FieldPath.documentId, whereIn: chatIds)
         .snapshots();
   }
 
   Future<String> addNewChat(List<String> partcipantsEmail) async {
-    String chatId = await chatsReference.add({
+    String chatId = await _chatsReference.add({
       "blocked": false,
       "participantsEmail": partcipantsEmail,
       "lastMessage": null,
@@ -26,7 +26,7 @@ class ChatService {
   }
 
   Stream<QuerySnapshot> getMessagesStream(String chatId) {
-    return chatsReference
+    return _chatsReference
         .doc(chatId)
         .collection("messages")
         .orderBy("time", descending: true)
@@ -34,11 +34,21 @@ class ChatService {
   }
 
   Future<void> addMessage(String chatId, Message message) {
-    return chatsReference.doc(chatId).collection("messages").add({
+    return _chatsReference.doc(chatId).collection("messages").add({
       "authorUid": message.authorUid,
       "content": message.content,
       "time": message.time,
       "status": message.status,
     });
+  }
+
+  Future<QuerySnapshot> getRecentMessage(String chatId) {
+    return _chatsReference
+        .doc(chatId)
+        .collection("messages")
+        .limit(1)
+        .orderBy("time", descending: true)
+        .get()
+        .then((value) => value);
   }
 }

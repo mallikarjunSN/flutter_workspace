@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/auth/authentication.dart';
+import 'package:hello/dyslexia/dyslexia_home.dart';
 import 'package:hello/login.dart';
 import 'package:hello/messaging/messaging_home.dart';
+import 'package:hello/services/user_service.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({key}) : super(key: key);
@@ -44,8 +46,13 @@ class _VerifyEmailState extends State<VerifyEmail> {
   Widget build(BuildContext context) {
     if (emailVerified) {
       timer.cancel();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MessagingHome()));
+      UserService().getUsertype().then((isMessagingUser) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    (isMessagingUser ? MessagingHome() : DyslexiaHome())));
+      });
     }
     return Scaffold(
       appBar: AppBar(

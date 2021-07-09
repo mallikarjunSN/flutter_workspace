@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/dyslexia/reading.dart';
 import 'package:hello/dyslexia/typing.dart';
-import 'package:hello/model/words.dart';
+import 'package:hello/model/words_model.dart';
 
 class Assessment extends StatefulWidget {
   @override
