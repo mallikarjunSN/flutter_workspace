@@ -26,6 +26,12 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
     Progress(),
   ];
 
+  @override
+  Future<void> dispose() async {
+    await DatabaseService().closeDatabase();
+    super.dispose();
+  }
+
   double currentSize = 30;
 
   double twoPi = 2 * pi;
@@ -54,8 +60,19 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
         drawer: MyDrawer(
           current: context.widget.toString(),
         ),
-        body: Center(
-          child: screens.elementAt(currentIdx),
+        body: FutureBuilder<void>(
+          future: DatabaseService().intializeDatabase(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Center(
+                child: screens.elementAt(currentIdx),
+              );
+            } else {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
         ),
         bottomNavigationBar: MyBottomBar(
             currentIdx: currentIdx,
@@ -107,7 +124,7 @@ class _HomeState extends State<Home> {
     List<ReadingWord> rws =
         await DatabaseService().getReadingWordsByLevel("medium");
 
-    print(rws[0].level);
+    print(rws.length);
   }
 
   void delete() {

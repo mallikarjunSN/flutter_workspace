@@ -24,8 +24,27 @@ class DatabaseService {
     return rWords;
   }
 
+  Future<void> closeDatabase() async {
+    await _db.close();
+    print("database closed");
+  }
+
+  Stream<List<Map<String, dynamic>>> getWordsByLevelAsStream(
+      String table, String level) {
+    return _db.getWordStream(table, level);
+  }
+
+  Stream<List<Map<String, dynamic>>> getCountAsStream(
+      String table, String level) {
+    return _db.getCount(table, level);
+  }
+
   Future<void> deleteReadingWords() async {
     await _db.delete("readingWords");
+  }
+
+  Future<void> intializeDatabase() async {
+    return await _db.initialization();
   }
 
   Future<void> populateReadingWords() async {
@@ -54,6 +73,10 @@ class ExerciseDatabase {
     return _database;
   }
 
+  Future<void> initialization() async {
+    _database = await instance.database;
+  }
+
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
@@ -66,7 +89,6 @@ class ExerciseDatabase {
   }
 
   Future<void> close() async {
-    _database = await instance.database;
     await _database.close();
   }
 
@@ -97,29 +119,44 @@ class ExerciseDatabase {
 
   //Create 2 of CRUD
   Future<void> insert(String table, Map<String, dynamic> data) async {
-    _database = await instance.database;
+    // _database = await instance.database;
     int res = await _database.insert(table, data,
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   //Read of CRUD
   Future<List<Map<String, dynamic>>> read(String table, String level) async {
-    _database = await instance.database;
+    // _database = await instance.database;
     return await _database.query(table, where: "level = ?", whereArgs: [level]);
   }
 
   //Update of CRUD
   Future<void> update(String table, Map<String, dynamic> data) async {
-    _database = await instance.database;
+    // _database = await instance.database;
     int res = await _database
         .update(table, data, where: "word = ?", whereArgs: [data["word"]]);
     print("db update  $res");
   }
 
   Future<void> delete(String table) async {
-    _database = await instance.database;
+    // _database = await instance.database;
     int count = await _database.delete(table);
 
     print("$count rows deleted");
+  }
+
+  Stream<List<Map<String, dynamic>>> getCount(String table, String level) {
+    String query =
+        """SELECT COUNT(*) AS C FROM $table WHERE lastAttemptOn is not null AND LEVEL = '$level'
+          UNION
+          SELECT COUNT(*) AS C FROM $table WHERE LEVEL = '$level'
+    """;
+
+    return _database.rawQuery(query).asStream();
+  }
+
+  Stream<List<Map<String, dynamic>>> getWordStream(String table, String level) {
+    return _database
+        .query(table, where: "level = ?", whereArgs: [level]).asStream();
   }
 }

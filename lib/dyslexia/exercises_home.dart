@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/dyslexia/word_list.dart';
+import 'package:hello/services/db_service.dart';
 
 class ExercisesHome extends StatefulWidget {
   const ExercisesHome({key}) : super(key: key);
@@ -288,7 +289,7 @@ class _LevelIconState extends State<LevelIcon> {
         pageBuilder: (context, _, __) => WordList(),
         // transitionDuration: Duration(milliseconds: 1000),
         settings: RouteSettings(
-            arguments: {"level": widget.level, "reading": widget.type}),
+            arguments: {"level": widget.level, "type": widget.type}),
       ),
     );
   }
@@ -302,6 +303,8 @@ class _LevelIconState extends State<LevelIcon> {
     "typing_hard": "assets/icons/3star.png",
   };
 
+  String table;
+
   double width, height;
 
   final _colors = CoolColor().getRandomColors(2);
@@ -314,6 +317,9 @@ class _LevelIconState extends State<LevelIcon> {
 
   @override
   Widget build(BuildContext context) {
+    table = (widget.type.toLowerCase() == "reading"
+        ? "readingWords"
+        : "typingWords");
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     return GestureDetector(
@@ -404,16 +410,19 @@ class _LevelIconState extends State<LevelIcon> {
               ),
               Expanded(
                 flex: 15,
-                child: FutureBuilder<List<int>>(
-                  future: Future.delayed(Duration(seconds: 5), () => [25, 50]),
+                child: StreamBuilder(
+                  stream:
+                      DatabaseService().getCountAsStream(table, widget.level),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      var arr = snapshot.data;
+                      List<Map<String, dynamic>> data = snapshot.data;
+                      int completed = data[0]["C"];
+                      int total = data[1]["C"];
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            "${arr[0]}/${arr[1]}",
+                            "$completed / $total",
                             style: TextStyle(color: Colors.black, fontSize: 14),
                           ),
                           SizedBox(
@@ -422,7 +431,7 @@ class _LevelIconState extends State<LevelIcon> {
                               borderRadius: BorderRadius.circular(5),
                               child: LinearProgressIndicator(
                                 semanticsValue: "Progress indicator",
-                                value: arr[0] / arr[1].toDouble(),
+                                value: completed.toDouble() / total,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                     Colors.blue[900]),
                                 minHeight: 8,

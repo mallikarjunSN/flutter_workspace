@@ -1,8 +1,12 @@
 // import 'dart:html';
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
+import 'package:hello/services/db_service.dart';
+import 'package:hello/services/string_service.dart';
 
 class Data {
   bool reading;
@@ -65,28 +69,45 @@ class _WordListState extends State<WordList> {
     "typing_medium": "assets/icons/2star.png",
     "typing_hard": "assets/icons/3star.png",
   };
-
   @override
   Widget build(BuildContext context) {
     final Map args = ModalRoute.of(context).settings.arguments;
     final String level = args["level"];
-    final String type = args["reading"];
+    final String type = args["type"];
+
+    String table = (type == "reading" ? "ReadingWords" : "typingWords");
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            title: Text(
-              "$type Exercises\n$level",
-              textAlign: TextAlign.center,
-            ),
-            centerTitle: true,
             backgroundColor: Colors.transparent,
             actions: [IconButton(icon: Icon(Icons.settings), onPressed: () {})],
-            collapsedHeight: 200,
+            collapsedHeight: 210,
+            pinned: true,
+            title: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "${StringService().capitalize(type)} Exercises\nLevel : $level",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+            centerTitle: true,
             flexibleSpace: Hero(
               tag: "${type}_$level",
               child: Container(
+                padding: EdgeInsets.only(top: 25),
                 decoration: BoxDecoration(
                   gradient: RadialGradient(colors: [
                     CoolColor().getColor(0xE684AE),
@@ -103,42 +124,72 @@ class _WordListState extends State<WordList> {
               ),
             ),
           ),
-          SliverAnimatedList(
-            initialItemCount: excWords.length,
-            itemBuilder: (context, index, animation) {
-              return Center(
-                child: TweenAnimationBuilder<double>(
-                  duration: Duration(milliseconds: 1000),
-                  child: SizedBox(
-                    height: 120,
-                    width: 335,
-                    child: Card(
-                      elevation: 20,
-                      margin: EdgeInsets.only(top: 15),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text(
-                              excWords.elementAt(index),
+          StreamBuilder(
+            stream: DatabaseService().getWordsByLevelAsStream(table, level),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<Map<String, dynamic>> data = snapshot.data;
+                return SliverAnimatedList(
+                  initialItemCount: data.length,
+                  itemBuilder: (context, index, animation) {
+                    String word = data[index]["word"];
+                    double lac = data[index]["lastAccuracy"];
+                    return Center(
+                      child: TweenAnimationBuilder<double>(
+                        duration: Duration(milliseconds: 1000),
+                        child: SizedBox(
+                          height: 120,
+                          width: MediaQuery.of(context).size.width * 0.95,
+                          child: Card(
+                            elevation: 20,
+                            margin: EdgeInsets.only(top: 15),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    word,
+                                    style: TextStyle(
+                                        color: Colors.indigo,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  CircularProgressIndicator(
+                                    value: lac,
+                                    backgroundColor:
+                                        Colors.blue.withOpacity(0.1),
+                                  ),
+                                ],
+                              ),
                             ),
-                            Icon(Icons.arrow_forward_ios_outlined)
-                          ],
+                          ),
                         ),
+                        tween: Tween(begin: 0, end: 1),
+                        curve: Curves.easeOut,
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            origin: Offset(0, 0),
+                            child: child,
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                  tween: Tween(begin: 0, end: 1),
-                  curve: Curves.easeOut,
-                  builder: (context, value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      origin: Offset(0, 0),
-                      child: child,
                     );
                   },
-                ),
-              );
+                );
+              } else {
+                return SliverList(
+                    delegate: SliverChildListDelegate.fixed([
+                  Container(
+                    margin: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.all(25),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ]));
+              }
             },
           )
         ],
