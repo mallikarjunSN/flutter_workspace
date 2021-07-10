@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
+import 'package:hello/dyslexia/reading_page.dart';
+import 'package:hello/dyslexia/speak.dart';
 import 'package:hello/services/db_service.dart';
 import 'package:hello/services/string_service.dart';
 
@@ -134,46 +136,57 @@ class _WordListState extends State<WordList> {
                   itemBuilder: (context, index, animation) {
                     String word = data[index]["word"];
                     double lac = data[index]["lastAccuracy"];
-                    return Center(
-                      child: TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 1000),
-                        child: SizedBox(
-                          height: 120,
-                          width: MediaQuery.of(context).size.width * 0.95,
-                          child: Card(
-                            elevation: 20,
-                            margin: EdgeInsets.only(top: 15),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    word,
-                                    style: TextStyle(
-                                        color: Colors.indigo,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  CircularProgressIndicator(
-                                    value: lac,
-                                    backgroundColor:
-                                        Colors.blue.withOpacity(0.1),
-                                  ),
-                                ],
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ReadingPage(),
+                            settings: RouteSettings(arguments: word),
+                          ),
+                        );
+                      },
+                      child: Center(
+                        child: TweenAnimationBuilder<double>(
+                          duration: Duration(milliseconds: 1000),
+                          child: SizedBox(
+                            height: 120,
+                            width: MediaQuery.of(context).size.width * 0.95,
+                            child: Card(
+                              elevation: 20,
+                              margin: EdgeInsets.only(top: 15),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      word,
+                                      style: TextStyle(
+                                          color: Colors.indigo,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    CircularProgressIndicator(
+                                      value: lac,
+                                      backgroundColor:
+                                          Colors.blue.withOpacity(0.1),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
+                          tween: Tween(begin: 0, end: 1),
+                          curve: Curves.easeOut,
+                          builder: (context, value, child) {
+                            return Transform.scale(
+                              scale: value,
+                              origin: Offset(0, 0),
+                              child: child,
+                            );
+                          },
                         ),
-                        tween: Tween(begin: 0, end: 1),
-                        curve: Curves.easeOut,
-                        builder: (context, value, child) {
-                          return Transform.scale(
-                            scale: value,
-                            origin: Offset(0, 0),
-                            child: child,
-                          );
-                        },
                       ),
                     );
                   },
@@ -232,46 +245,3 @@ class Lliisstt extends StatelessWidget {
     );
   }
 }
-
-/*
-Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: 60,
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(30)),
-              child: TextField(
-                key: nameKey,
-                // decoration: InputDecoration(/),
-                scrollPadding: EdgeInsets.all(10),
-                decoration: InputDecoration(),
-                style: TextStyle(fontSize: 30, color: Colors.black),
-
-                textAlign: TextAlign.center,
-                onSubmitted: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
-              ),
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                saveName(name);
-              },
-              child: Text("SUBMIT"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                resetName();
-              },
-              child: Text("RESET"),
-            )
-          ],
-        )
-*/

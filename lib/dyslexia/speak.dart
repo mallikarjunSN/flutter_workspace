@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:hello/model/words_model.dart';
 
 class SpeakDemo extends StatefulWidget {
-  const SpeakDemo({key}) : super(key: key);
+  const SpeakDemo({this.readingWord, key}) : super(key: key);
+
+  final ReadingWord readingWord;
 
   @override
   _SpeakDemoState createState() => _SpeakDemoState();
@@ -30,17 +33,10 @@ class _SpeakDemoState extends State<SpeakDemo> {
 
     flutterTts.setStartHandler(() {
       print("speaking");
-
-      setState(() {
-        isSpeaking = true;
-      });
     });
 
     flutterTts.setCompletionHandler(() {
       print("COmpleted");
-      setState(() {
-        isSpeaking = false;
-      });
     });
 
     flutterTts.setCancelHandler(() {
@@ -62,8 +58,6 @@ class _SpeakDemoState extends State<SpeakDemo> {
     "parts": ["gra", "du", "ation"]
   };
 
-  bool isSpeaking = false;
-
   int index = 0;
 
   Future _speak(var pWord) async {
@@ -73,7 +67,11 @@ class _SpeakDemoState extends State<SpeakDemo> {
     String _fullWord = pWord["word"];
 
     List<String> phonemes = pWord["phonemes"];
-
+    setState(() {
+      gap = true;
+      highlightPart = true;
+    });
+    index = 0;
     flutterTts.setSpeechRate(rate * 0.8);
     for (var word in phonemes) {
       if (word.isNotEmpty) {
@@ -85,15 +83,25 @@ class _SpeakDemoState extends State<SpeakDemo> {
       });
     }
 
+    setState(() {
+      gap = false;
+      highlightPart = false;
+      highlightWhole = true;
+    });
+
     flutterTts.setSpeechRate(rate);
     if (_fullWord.isNotEmpty) {
       await flutterTts.awaitSpeakCompletion(true);
       await flutterTts.speak(_fullWord);
     }
     setState(() {
-      index = 0;
+      highlightWhole = false;
     });
   }
+
+  bool highlightPart = false;
+  bool highlightWhole = false;
+  bool gap = false;
 
   @override
   void dispose() {
@@ -103,34 +111,44 @@ class _SpeakDemoState extends State<SpeakDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Speak demo"),
-      ),
-      body: Center(
-        child: Column(
+    return Container(
+      height: 100,
+      width: 300,
+      decoration: BoxDecoration(border: Border.all()),
+      child: Center(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: isSpeaking ? 10.0 : 0,
+              spacing: gap ? 10.0 : 0,
               children: parts
                   .map((txt) => Text(
                         txt,
                         style: TextStyle(
-                            fontSize:
-                                (index == parts.indexOf(txt) && isSpeaking)
-                                    ? 45
-                                    : 35,
-                            color: ((index == parts.indexOf(txt) && isSpeaking)
-                                ? Colors.yellow
-                                : Colors.white),
+                            fontSize: (highlightWhole ||
+                                    index == parts.indexOf(txt) &&
+                                        highlightPart)
+                                ? 45
+                                : 35,
+                            color: (highlightWhole ||
+                                    index == parts.indexOf(txt) && highlightPart
+                                ? Colors.amber
+                                : Colors.black),
                             fontWeight: FontWeight.bold),
                       ))
                   .toList(),
             ),
-            ElevatedButton(
-              child: Text("Speak"),
+            IconButton(
+              iconSize: 50,
+              color: Colors.cyan,
+              icon: SizedBox(
+                  height: 70,
+                  width: 70,
+                  child: Image.network(
+                    "https://icon-library.com/images/pronunciation-icon/pronunciation-icon-28.jpg",
+                    fit: BoxFit.contain,
+                  )),
               onPressed: () {
                 _speak(practiceWord);
               },
