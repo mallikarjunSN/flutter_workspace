@@ -4,9 +4,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/common/tts_settings.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/dyslexia/reading_page.dart';
 import 'package:hello/dyslexia/speak.dart';
+import 'package:hello/model/words_model.dart';
 import 'package:hello/services/db_service.dart';
 import 'package:hello/services/string_service.dart';
 
@@ -84,7 +86,14 @@ class _WordListState extends State<WordList> {
         slivers: [
           SliverAppBar(
             backgroundColor: Colors.transparent,
-            actions: [IconButton(icon: Icon(Icons.settings), onPressed: () {})],
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => TtsSettings()));
+                  })
+            ],
             collapsedHeight: 210,
             pinned: true,
             title: ClipRRect(
@@ -130,18 +139,22 @@ class _WordListState extends State<WordList> {
             stream: DatabaseService().getWordsByLevelAsStream(table, level),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                print(snapshot.data.length);
                 List<Map<String, dynamic>> data = snapshot.data;
                 return SliverAnimatedList(
                   initialItemCount: data.length,
                   itemBuilder: (context, index, animation) {
                     String word = data[index]["word"];
                     double lac = data[index]["lastAccuracy"];
+                    ReadingWord rw = ReadingWord.fromJsom(data[index]);
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ReadingPage(),
+                            builder: (context) => ReadingPage(
+                              readingWord: rw,
+                            ),
                             settings: RouteSettings(arguments: word),
                           ),
                         );

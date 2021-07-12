@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/services/other_services.dart';
 
 class FeedbackAndIssues extends StatefulWidget {
@@ -78,6 +79,7 @@ class _FeedbackAndIssuesState extends State<FeedbackAndIssues> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Feedback / Report Issues"),
+        backgroundColor: CoolColor.primaryColor,
       ),
       // resizeToAvoidBottomInset: false,
 

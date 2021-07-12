@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
@@ -142,7 +141,7 @@ class _ExercisesHomeState extends State<ExercisesHome>
                 ),
               ),
               Positioned(
-                bottom: 100,
+                bottom: height * 0.37,
                 right: 0,
                 left: 0,
                 child: Divider(
@@ -150,10 +149,15 @@ class _ExercisesHomeState extends State<ExercisesHome>
                   thickness: 1.0,
                 ),
               ),
-              // Block(
-              //   type: "typing",
-              //   blockAnimation: _block2Anim,
-              // )
+              Positioned(
+                bottom: height * 0.04,
+                left: 0,
+                right: 0,
+                child: Block(
+                  type: "typing",
+                  blockAnimation: _block2Anim,
+                ),
+              )
             ],
           ),
         );
@@ -319,7 +323,7 @@ class _LevelIconState extends State<LevelIcon> {
   Widget build(BuildContext context) {
     table = (widget.type.toLowerCase() == "reading"
         ? "readingWords"
-        : "typingWords");
+        : "readingWords");
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     return GestureDetector(
@@ -415,6 +419,7 @@ class _LevelIconState extends State<LevelIcon> {
                       DatabaseService().getCountAsStream(table, widget.level),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      print(snapshot.data);
                       List<Map<String, dynamic>> data = snapshot.data;
                       int completed = data[0]["C"];
                       int total = data[1]["C"];

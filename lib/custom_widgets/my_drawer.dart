@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/auth/authentication.dart';
 import 'package:hello/common/report_issues.dart';
+import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/custom_widgets/toggle_botton.dart';
 import 'package:hello/login.dart';
+import 'package:hello/provider_manager/theme_manager.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyDrawer extends StatefulWidget {
-  MyDrawer({key, @required this.current}) : super(key: key);
+  MyDrawer({
+    key,
+    @required this.current,
+    @required this.fullName,
+  }) : super(key: key);
 
   final String current;
+
+  final String fullName;
 
   @override
   _MyDrawerState createState() => _MyDrawerState();
@@ -105,34 +114,52 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     getTheme();
     return Drawer(
+      elevation: 20,
       child: ListView(
         addRepaintBoundaries: true,
         children: [
           DrawerHeader(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: Image.network(
-                      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Icon(
-                    Icons.android_outlined,
-                    size: 50,
+            decoration: BoxDecoration(color: CoolColor.primaryColor),
+            child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "VOX",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        color: Colors.cyanAccent,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold),
                   ),
-                ),
-              ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        "assets/user.png",
+                        height: 70,
+                        width: 70,
+                      ),
+                      SizedBox(
+                        width: 50,
+                      ),
+                      Text(
+                        widget.fullName,
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(
-            leading: Icon(FontAwesomeIcons.userAlt),
+            leading: FaIcon(FontAwesomeIcons.userAlt),
             title: Text("Update Profile"),
           ),
           ListTile(
-            leading: Icon(Icons.speaker_notes),
-            title: Text("My Account"),
+            leading: FaIcon(FontAwesomeIcons.cog),
+            title: Text("Settings"),
           ),
           ListTile(
             leading: Icon(Icons.brightness_2),
@@ -142,14 +169,14 @@ class _MyDrawerState extends State<MyDrawer> {
                 SizedBox(
                   width: 50,
                 ),
-                ToggleButton(
-                  status: isDark,
-                  onPressed: () {
-                    setState(() {
-                      isDark = !isDark;
-                      setTheme(isDark);
-                    });
-                  },
+                Consumer<ThemeManager>(
+                  builder: (context, ThemeManager themeManager, child) =>
+                      ToggleButton(
+                    status: themeManager.theme,
+                    onPressed: () {
+                      themeManager.setTheme(!(themeManager.theme));
+                    },
+                  ),
                 ),
               ],
             ),
@@ -183,10 +210,10 @@ class _MyDrawerState extends State<MyDrawer> {
               showAbout();
             },
           ),
-          ListTile(
-            leading: Icon(FontAwesomeIcons.googlePlay),
-            title: Text("Rate this app on play store"),
-          ),
+          // ListTile(
+          //   leading: Icon(FontAwesomeIcons.googlePlay),
+          //   title: Text("Rate this app on play store"),
+          // ),
         ],
       ),
     );

@@ -1,14 +1,22 @@
 // import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/custom_widgets/anime_button.dart';
 import 'package:hello/dyslexia/speak.dart';
 import 'package:hello/model/user_progress.dart';
+import 'package:hello/model/words_model.dart';
+import 'package:hello/services/db_service.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 class ReadingPage extends StatefulWidget {
+  ReadingPage({
+    @required this.readingWord,
+  });
+  final ReadingWord readingWord;
+
   @override
   _ReadingPageState createState() => _ReadingPageState();
 }
@@ -90,20 +98,11 @@ class _ReadingPageState extends State<ReadingPage> {
 
   UserProgress up = UserProgress();
 
-  void updateProgress(double accuracy) {
-    Attempt attempt = Attempt(originalWord, lastWords, accuracy);
-    if (UserProgress.attempts.containsKey(originalWord) == false) {
-      setState(() {
-        UserProgress.attempts.putIfAbsent(originalWord, () => attempt);
-      });
-      print("present");
-    } else {
-      UserProgress.attempts.update(originalWord, (value) => attempt);
-      print("absent");
-    }
-    setState(() {
-      UserProgress.update();
-    });
+  void updateProgress(double accuracy) async {
+    Map<String, dynamic> data = widget.readingWord.toJson();
+    data["lastAccuracy"] = accuracy;
+    data["lastAttemptOn"] = DateTime.now().toIso8601String();
+    await DatabaseService().updateAttempt("readingWords", data);
     Navigator.pop(context);
   }
 
@@ -117,7 +116,9 @@ class _ReadingPageState extends State<ReadingPage> {
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 20),
           ),
-          SpeakDemo(),
+          SpeakDemo(
+            readingWord: widget.readingWord,
+          ),
           Container(
               child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -203,21 +204,34 @@ class _ReadingPageState extends State<ReadingPage> {
             height: 5,
           ),
           Text(speech.isListening ? "Listening" : "Not listening"),
-          Container(
-            height: 50,
-            width: 120,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(40))),
-            child: ElevatedButton(
-              child: Text(
-                "submit",
-                style: TextStyle(fontSize: 20),
-              ),
-              onPressed: () {
-                updateProgress(accuracy);
-              },
-              // color: Colors.amber,
+          AnimeButton(
+            width: 150,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  "Submit",
+                  style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.cyanAccent),
+                ),
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color: Colors.greenAccent),
+                  child: Icon(
+                    Icons.done,
+                    color: Colors.white,
+                    size: 25,
+                  ),
+                )
+              ],
             ),
+            onPressed: () {
+              updateProgress(accuracy);
+            },
+            // color: Colors.amber,
           )
         ],
       ),
@@ -227,7 +241,7 @@ class _ReadingPageState extends State<ReadingPage> {
   @override
   Widget build(BuildContext context) {
     originalWord = ModalRoute.of(context).settings.arguments;
-
+    // print(widget.readingWord.lastAttemptOn);
     return Scaffold(
         body: _hasSpeech
             ? getUI()

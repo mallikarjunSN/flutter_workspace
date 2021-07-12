@@ -57,6 +57,7 @@ class _MessagingHomeState extends State<MessagingHome> {
     return Scaffold(
       drawer: MyDrawer(
         current: context.widget.toString(),
+        fullName: "Praveen Kumar",
       ),
       // backgroundColor: Color.fromRGBO(50, 70, 78, 1.0),
       appBar: AppBar(

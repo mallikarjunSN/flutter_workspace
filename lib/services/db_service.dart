@@ -17,11 +17,20 @@ class DatabaseService {
         data = await _db.read("readingWords", level);
       });
     }
+
     data.forEach((element) {
       rWords.add(ReadingWord.fromJsom(element));
     });
 
     return rWords;
+  }
+
+  Future<void> updateAttempt(String table, Map<String, dynamic> data) async {
+    await _db.update(table, data);
+  }
+
+  Future<void> deleteDB() async{
+    await _db.deleteDB();
   }
 
   Future<void> closeDatabase() async {
@@ -49,7 +58,7 @@ class DatabaseService {
 
   Future<void> populateReadingWords() async {
     QuerySnapshot snapshot = await OtherServices().getAllReadingWords();
-
+    print("populating ${snapshot.docs.length}");
     for (var doc in snapshot.docs) {
       await _db.insert("readingWords", doc.data());
     }
@@ -71,6 +80,13 @@ class ExerciseDatabase {
 
     _database = await _initDB('exercise.db');
     return _database;
+  }
+
+  Future<void> deleteDB() async{
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, "exercises.db");
+    await deleteDatabase(path);
+    print("database deleted");
   }
 
   Future<void> initialization() async {
@@ -109,7 +125,7 @@ class ExerciseDatabase {
     //create typing exercise table
     await db.execute("""
     CREATE TABLE typingWords(
-      word TEXT PxRIMARY KEY NOT NULL,
+      word TEXT PRIMARY KEY NOT NULL,
       level TEXT NOT NULL,
       lastAccuracy REAL DEFAULT 0.0,
       lastAttemptOn TEXT
@@ -133,6 +149,7 @@ class ExerciseDatabase {
   //Update of CRUD
   Future<void> update(String table, Map<String, dynamic> data) async {
     // _database = await instance.database;
+    print(data);
     int res = await _database
         .update(table, data, where: "word = ?", whereArgs: [data["word"]]);
     print("db update  $res");
@@ -146,10 +163,10 @@ class ExerciseDatabase {
   }
 
   Stream<List<Map<String, dynamic>>> getCount(String table, String level) {
-    String query =
-        """SELECT COUNT(*) AS C FROM $table WHERE lastAttemptOn is not null AND LEVEL = '$level'
+    String query = """
+        SELECT COUNT(*) AS C FROM $table WHERE lastAttemptOn is not null AND level = '$level'
           UNION
-          SELECT COUNT(*) AS C FROM $table WHERE LEVEL = '$level'
+          SELECT COUNT(*) AS C FROM $table WHERE level = '$level'
     """;
 
     return _database.rawQuery(query).asStream();

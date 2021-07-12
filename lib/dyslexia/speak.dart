@@ -3,7 +3,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:hello/model/words_model.dart';
 
 class SpeakDemo extends StatefulWidget {
-  const SpeakDemo({this.readingWord, key}) : super(key: key);
+  const SpeakDemo({@required this.readingWord, key}) : super(key: key);
 
   final ReadingWord readingWord;
 
@@ -29,7 +29,7 @@ class _SpeakDemoState extends State<SpeakDemo> {
   void _initFlutterTts() {
     flutterTts = FlutterTts();
 
-    parts = practiceWord["parts"];
+    parts = widget.readingWord.syllables.split(" ");
 
     flutterTts.setStartHandler(() {
       print("speaking");
@@ -64,9 +64,9 @@ class _SpeakDemoState extends State<SpeakDemo> {
     flutterTts.setPitch(pitch);
     flutterTts.setVolume(volume);
 
-    String _fullWord = pWord["word"];
+    String _fullWord = widget.readingWord.word;
 
-    List<String> phonemes = pWord["phonemes"];
+    List<String> phonemes = widget.readingWord.syllablesPron.split(" ");
     setState(() {
       gap = true;
       highlightPart = true;
@@ -114,7 +114,8 @@ class _SpeakDemoState extends State<SpeakDemo> {
     return Container(
       height: 100,
       width: 300,
-      decoration: BoxDecoration(border: Border.all()),
+      decoration: BoxDecoration(
+          border: Border.all(), borderRadius: BorderRadius.circular(20)),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -129,8 +130,8 @@ class _SpeakDemoState extends State<SpeakDemo> {
                             fontSize: (highlightWhole ||
                                     index == parts.indexOf(txt) &&
                                         highlightPart)
-                                ? 45
-                                : 35,
+                                ? 40
+                                : 30,
                             color: (highlightWhole ||
                                     index == parts.indexOf(txt) && highlightPart
                                 ? Colors.amber

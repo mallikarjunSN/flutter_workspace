@@ -48,8 +48,10 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(50),
-              child: Image.network(
-                "https://cdn1-www.superherohype.com/assets/uploads/2013/11/batmane3-1.jpg",
+              child: Image.asset(
+                "assets/user.png",
+                //   Image.network(
+                // "https://cdn1-www.superherohype.com/assets/uploads/2013/11/batmane3-1.jpg",
                 fit: BoxFit.cover,
                 height: 100,
                 width: 100,
@@ -59,10 +61,12 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
         ),
         drawer: MyDrawer(
           current: context.widget.toString(),
+          fullName: "Rajesh",
         ),
         body: FutureBuilder<void>(
           future: DatabaseService().intializeDatabase(),
           builder: (context, snapshot) {
+            print(snapshot.connectionState);
             if (snapshot.connectionState == ConnectionState.done) {
               return Center(
                 child: screens.elementAt(currentIdx),
@@ -144,6 +148,12 @@ class _HomeState extends State<Home> {
           ),
           ElevatedButton(onPressed: getWords, child: Text("get rWords")),
           ElevatedButton(onPressed: delete, child: Text("delete rWords")),
+          ElevatedButton(
+            onPressed: () async {
+              await DatabaseService().deleteDB();
+            },
+            child: Text("delete DB"),
+          ),
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/auth/authentication.dart';
@@ -122,152 +124,180 @@ class LoginState extends State<Login> {
     height = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        padding: EdgeInsets.only(left: 25, right: 25),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.cyan,
-              Colors.cyanAccent,
-              // Color(0xFF00B7D3),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            "https://i.pinimg.com/originals/e3/e5/b1/e3e5b121a4a6d008971cccbd3088ef01.jpg",
+            fit: BoxFit.fill,
+            height: height,
+            width: width,
           ),
-        ),
-        child: Form(
-          key: _loginKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                "welcome to",
-                style: TextStyle(color: Colors.white),
+          Positioned(
+            top: 50,
+            width: width,
+            child: Text(
+              "welcome to",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ),
+          Positioned(
+            top: 100,
+            width: width,
+            child: Text(
+              "VOX",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.cyan,
+                fontWeight: FontWeight.bold,
+                fontSize: 50,
               ),
-              Text(
-                "VOX",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 50),
-              ),
-              TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                style: TextStyle(
-                  fontSize: 18,
-                ),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.alternate_email_outlined,
-                    size: 25,
-                  ),
-                  // filled: true,
-                  // fillColor: Colors.white,
-                  hintStyle: TextStyle(fontSize: 18, color: Colors.white),
-                  labelStyle: TextStyle(fontSize: 10, color: Colors.white),
-                  hintText: "email",
-                  errorStyle: TextStyle(fontSize: 16, color: Colors.red),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30))),
-                  contentPadding: EdgeInsets.all(10),
-                ),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return "please enter an email address";
-                  }
+            ),
+          ),
+          Positioned(
+            top: height * 0.25,
+            left: 0,
+            right: 0,
+            bottom: height * 0.3,
+            child: Container(
+              margin: EdgeInsets.only(left: 10, right: 10),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Form(
+                    key: _loginKey,
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 50, bottom: 5, left: 10, right: 10),
+                      color: Colors.white.withOpacity(0.25),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextFormField(
+                            keyboardType: TextInputType.emailAddress,
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.alternate_email_outlined,
+                                size: 25,
+                              ),
+                              hintStyle:
+                                  TextStyle(fontSize: 18, color: Colors.white),
+                              labelStyle:
+                                  TextStyle(fontSize: 10, color: Colors.white),
+                              hintText: "email",
+                              errorStyle:
+                                  TextStyle(fontSize: 16, color: Colors.red),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(30))),
+                              contentPadding: EdgeInsets.all(10),
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "please enter an email address";
+                              }
 
-                  return null;
-                },
-                onChanged: (newValue) => setState(
-                  () {
-                    email = newValue;
-                  },
-                ),
-              ),
-              TextFormField(
-                style: TextStyle(fontSize: 18),
-                obscureText: !showPassword,
-                decoration: InputDecoration(
-                    // filled: true,
-                    // fillColor: Colors.white,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 18),
-                    hintText: "password",
-                    prefixIcon: Icon(
-                      Icons.lock_outline,
-                      size: 25,
+                              return null;
+                            },
+                            onChanged: (newValue) => setState(
+                              () {
+                                email = newValue;
+                              },
+                            ),
+                          ),
+                          TextFormField(
+                            style: TextStyle(fontSize: 18),
+                            obscureText: !showPassword,
+                            decoration: InputDecoration(
+                                hintStyle: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                                hintText: "password",
+                                prefixIcon: Icon(
+                                  Icons.lock_outline,
+                                  size: 25,
+                                ),
+                                suffixIcon: IconButton(
+                                    icon: Icon(
+                                      Icons.remove_red_eye,
+                                      color: (!showPassword
+                                          ? Colors.black.withOpacity(0.5)
+                                          : Colors.blue),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        showPassword = !showPassword;
+                                      });
+                                    }),
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(30))),
+                                labelStyle: TextStyle(fontSize: 18),
+                                errorStyle:
+                                    TextStyle(fontSize: 16, color: Colors.red),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
+                                contentPadding: EdgeInsets.all(10)),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "please enter password";
+                              }
+                              return null;
+                            },
+                            onChanged: (newValue) => setState(() {
+                              password = newValue;
+                            }),
+                          ),
+                          AnimeButton(
+                            height: 60,
+                            width: 90,
+                            backgroundColor: Colors.amberAccent,
+                            onPressed: login,
+                            child: Text(
+                              "Login",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    suffixIcon: IconButton(
-                        icon: Icon(
-                          Icons.remove_red_eye,
-                          color: (!showPassword
-                              ? Colors.black.withOpacity(0.5)
-                              : Colors.blue),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showPassword = !showPassword;
-                          });
-                        }),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(30))),
-                    labelStyle: TextStyle(fontSize: 18),
-                    errorStyle: TextStyle(fontSize: 16, color: Colors.red),
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
-                    contentPadding: EdgeInsets.all(10)),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return "please enter password";
-                  }
-                  return null;
-                },
-                onChanged: (newValue) => setState(() {
-                  password = newValue;
-                }),
-              ),
-              AnimeButton(
-                height: 60,
-                width: 100,
-                backgroundColor: Colors.amberAccent,
-                onPressed: login,
-                child: Text(
-                  "Login",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-              // AnimeButton(
-              //     width: width * 0.4,
-              //     onPressed: () {},
-              //     child: Row(
-              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //       children: [
-              //         SizedBox(
-              //             height: 25,
-              //             width: 25,
-              //             child: Image.network(
-              //                 "https://cdn.iconscout.com/icon/free/png-256/google-152-189813.png")),
-              //         Text(
-              //           "Continue with \nGoogle",
-              //           style: TextStyle(
-              //             color: Colors.white,
-              //           ),
-              //           textAlign: TextAlign.center,
-              //         ),
-              //       ],
-              //     )),
-              (status == "Signing in..."
-                  ? CircularProgressIndicator(
-                      strokeWidth: 5,
-                      backgroundColor: Colors.white,
-                    )
-                  : Text("")),
-              Text(
+            ),
+          ),
+          Positioned(
+            bottom: height * 0.21,
+            width: width,
+            child: (status == "Signing in..."
+                ? Center(
+                    child: SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 5,
+                        backgroundColor: Colors.white,
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 0,
+                    width: 0,
+                  )),
+          ),
+          Positioned(
+            bottom: height * 0.18,
+            width: width,
+            child: Center(
+              child: Text(
                 status,
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -277,21 +307,25 @@ class LoginState extends State<Login> {
                         ? Colors.white
                         : Colors.red)),
               ),
-              AnimeButton(
-                backgroundColor: Colors.blue,
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Signup()));
-                },
-                child: Text(
-                  "Signup",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 25),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            bottom: height * 0.01,
+            left: width / 2.7,
+            child: AnimeButton(
+              backgroundColor: Colors.blue,
+              onPressed: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Signup()));
+              },
+              child: Text(
+                "Signup",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 25),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

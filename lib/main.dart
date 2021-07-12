@@ -4,8 +4,10 @@ import 'package:hello/dyslexia/dyslexia_home.dart';
 import 'package:hello/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hello/messaging/messaging_home.dart';
+import 'package:hello/provider_manager/theme_manager.dart';
 import 'package:hello/services/user_service.dart';
 import 'package:hello/verify_email.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -28,40 +30,7 @@ class MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    // if (FirebaseAuth.instance.currentUser != null) {
-    //   UserService()
-    //       .getMessagingUserByEmail(FirebaseAuth.instance.currentUser.email)
-    //       .then((value) {
-    //     mUser = value;
-    //   });
-    // }
-    getTheme();
     super.initState();
-  }
-
-  bool isDark = false;
-
-  Future<void> setTheme() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("isDark", false);
-    setState(() {
-      isDark = false;
-    });
-  }
-
-  Future<void> getTheme() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var status;
-    try {
-      status = prefs.getBool("isDark");
-      if (status != null) {
-        setState(() {
-          isDark = status;
-        });
-      } else {
-        setTheme();
-      }
-    } catch (e) {}
   }
 
   bool isMessagingUser;
@@ -104,11 +73,19 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     user = _auth.currentUser;
-    return MaterialApp(
-      home: getHome(),
-      theme: (isDark ? ThemeData.dark() : ThemeData.light()),
-      debugShowCheckedModeBanner: false,
-      // showSemanticsDebugger: true,
+    return ChangeNotifierProvider<ThemeManager>(
+      create: (_) => ThemeManager(),
+      child: Consumer<ThemeManager>(
+          builder: (context, ThemeManager themeManager, child) {
+        print("in main ${themeManager.theme}");
+        return MaterialApp(
+          home: getHome(),
+          theme: (themeManager.isDark ? ThemeData.dark() : ThemeData.light()),
+          // theme: ThemeData.light(),
+          debugShowCheckedModeBanner: false,
+          // showSemanticsDebugger: true,
+        );
+      }),
     );
   }
 }

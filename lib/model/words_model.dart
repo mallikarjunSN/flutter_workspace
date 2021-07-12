@@ -21,16 +21,16 @@ class ReadingWord {
     this.syllables = data["syllables"];
     this.syllablesPron = data["syllablesPron"];
     this.lastAccuracy = data["lastAccuracy"];
-    this.lastAttemptOn = data["lastAttemptOn"];
+    this.lastAttemptOn = (data["lastAttemptOn"]!= null?DateTime.tryParse(data["lastAttemptOn"]) : null);
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "WORD": this.word,
-      "SYLLABLES": this.syllables,
-      "SYLLABLES_PRON": this.syllablesPron,
-      "LAST_ACCURACY": this.lastAccuracy,
-      "LAST_ATTEMPT_ON": this.lastAttemptOn,
+      "word": this.word,
+      "syllables": this.syllables,
+      "syllablesPron": this.syllablesPron,
+      "lastAccuracy": this.lastAccuracy,
+      "lastAttemptOn": this.lastAttemptOn,
     };
   }
 }

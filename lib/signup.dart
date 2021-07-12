@@ -323,7 +323,7 @@ class SignupState extends State<Signup> {
                                             clipper: InfoClipper(),
                                             child: Container(
                                               width: width * 0.8,
-                                              height: height * 0.15,
+                                              height: height * 0.17,
                                               color: Colors.white,
                                               padding: EdgeInsets.only(top: 20),
                                               child: Text(
