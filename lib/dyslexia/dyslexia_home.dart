@@ -23,7 +23,7 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
   List<Widget> screens = [
     Home(),
     ExercisesHome(),
-    Progress(),
+    ProgressUI(),
   ];
 
   @override
@@ -66,7 +66,6 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
         body: FutureBuilder<void>(
           future: DatabaseService().intializeDatabase(),
           builder: (context, snapshot) {
-            print(snapshot.connectionState);
             if (snapshot.connectionState == ConnectionState.done) {
               return Center(
                 child: screens.elementAt(currentIdx),

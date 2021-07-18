@@ -419,10 +419,16 @@ class _LevelIconState extends State<LevelIcon> {
                       DatabaseService().getCountAsStream(table, widget.level),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      print(snapshot.data);
+
                       List<Map<String, dynamic>> data = snapshot.data;
-                      int completed = data[0]["C"];
-                      int total = data[1]["C"];
+                      int completed;
+                      int total;
+                      if(data.length == 2){
+                        completed = data[0]["C"];
+                        total = data[1]["C"];
+                      }else{
+                        completed = total = data[0]["C"];
+                      }
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [

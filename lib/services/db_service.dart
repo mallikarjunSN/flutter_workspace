@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hello/model/user_progress.dart';
 import 'package:hello/model/words_model.dart';
 import 'package:hello/services/other_services.dart';
 import 'package:path/path.dart';
@@ -25,11 +26,29 @@ class DatabaseService {
     return rWords;
   }
 
+  Future<List<Progress>> getProgressDetails() async {
+    List<Progress> data = [];
+
+    List<Map<String, dynamic>> raw = [];
+
+    raw = await _db.getProgress("readingWords");
+
+    for (var val in raw) {
+      data.add(Progress.fromMap(val));
+    }
+
+    raw = await _db.getProgress("typingWords");
+    for (var val in raw) {
+      data.add(Progress.fromMap(val));
+    }
+    return data;
+  }
+
   Future<void> updateAttempt(String table, Map<String, dynamic> data) async {
     await _db.update(table, data);
   }
 
-  Future<void> deleteDB() async{
+  Future<void> deleteDB() async {
     await _db.deleteDB();
   }
 
@@ -82,7 +101,7 @@ class ExerciseDatabase {
     return _database;
   }
 
-  Future<void> deleteDB() async{
+  Future<void> deleteDB() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, "exercises.db");
     await deleteDatabase(path);
@@ -106,6 +125,15 @@ class ExerciseDatabase {
 
   Future<void> close() async {
     await _database.close();
+  }
+
+  Future<List<Map<String, dynamic>>> getProgress(String table) async {
+    return await _database.query(
+      table,
+      columns: ["word", "lastAccuracy", "lastAttemptOn"],
+      where: "lastAttemptOn is not null",
+      orderBy: "lastAttemptOn asc",
+    );
   }
 
   //Create of CRUD

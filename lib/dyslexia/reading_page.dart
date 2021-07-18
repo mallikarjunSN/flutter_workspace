@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/custom_widgets/anime_button.dart';
 import 'package:hello/dyslexia/speak.dart';
-import 'package:hello/model/user_progress.dart';
 import 'package:hello/model/words_model.dart';
 import 'package:hello/services/db_service.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
@@ -95,8 +94,6 @@ class _ReadingPageState extends State<ReadingPage> {
 
   String originalWord;
   double accuracy = 0;
-
-  UserProgress up = UserProgress();
 
   void updateProgress(double accuracy) async {
     Map<String, dynamic> data = widget.readingWord.toJson();
@@ -229,7 +226,7 @@ class _ReadingPageState extends State<ReadingPage> {
               ],
             ),
             onPressed: () {
-              updateProgress(accuracy);
+              updateProgress(accuracy * 100);
             },
             // color: Colors.amber,
           )

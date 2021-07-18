@@ -1,7 +1,6 @@
 {
   "project_info": {
     "project_number": "303712187534",
-    "firebase_url": "https://test-hello-95cb4-default-rtdb.firebaseio.com",
     "project_id": "test-hello-95cb4",
     "storage_bucket": "test-hello-95cb4.appspot.com"
   },
@@ -14,14 +13,6 @@
         }
       },
       "oauth_client": [
-        {
-          "client_id": "303712187534-ujsesr02tnjofl2693jei9kqsnetq16e.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.hello",
-            "certificate_hash": "4b6400f1c888867dc894db2c6acda9dcbbe4bbdf"
-          }
-        },
         {
           "client_id": "303712187534-4h020b8qit2h95ap88o1kd9h6iqj44vh.apps.googleusercontent.com",
           "client_type": 3

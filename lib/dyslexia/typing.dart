@@ -16,21 +16,7 @@ class _TypingAssessmentState extends State<TypingAssessment> {
 
   String enteredWord;
 
-  void updateProgress(String originalWord) {
-    Attempt attempt = Attempt(originalWord, enteredWord, accuracy);
-    if (UserProgress.attempts.containsKey(originalWord) == false) {
-      setState(() {
-        UserProgress.attempts.putIfAbsent(originalWord, () => attempt);
-      });
-      print("present");
-    } else {
-      UserProgress.attempts.update(originalWord, (value) => attempt);
-      print("absent");
-    }
-    setState(() {
-      UserProgress.update();
-    });
-  }
+  void updateProgress(String originalWord) {}
 
   double accuracy = 0;
 
@@ -122,10 +108,6 @@ class _TypingAssessmentState extends State<TypingAssessment> {
               itemCount: words.length,
               itemBuilder: (context, index) {
                 return Container(
-                  color:
-                      (UserProgress.attempts.containsKey(words.elementAt(index))
-                          ? Colors.green[(index + 3) % 10 * 100]
-                          : Colors.blue[(index + 3) % 10 * 100]),
                   height: 100,
                   margin: EdgeInsets.only(top: 5, bottom: 5),
                   padding: EdgeInsets.all(10),
