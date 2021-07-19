@@ -50,8 +50,6 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
               borderRadius: BorderRadius.circular(50),
               child: Image.asset(
                 "assets/user.png",
-                //   Image.network(
-                // "https://cdn1-www.superherohype.com/assets/uploads/2013/11/batmane3-1.jpg",
                 fit: BoxFit.cover,
                 height: 100,
                 width: 100,

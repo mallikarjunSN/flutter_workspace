@@ -8,6 +8,7 @@ import 'package:hello/common/tts_settings.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/dyslexia/reading_page.dart';
 import 'package:hello/dyslexia/speak.dart';
+import 'package:hello/dyslexia/typing.dart';
 import 'package:hello/model/words_model.dart';
 import 'package:hello/services/db_service.dart';
 import 'package:hello/services/string_service.dart';
@@ -42,29 +43,6 @@ class _WordListState extends State<WordList> {
     "Hard": FontAwesomeIcons.userAstronaut
   };
 
-  final List<String> excWords = [
-    "Hello",
-    "world",
-    "is",
-    "really",
-    "cool",
-    "Hello",
-    "world",
-    "is",
-    "really",
-    "cool",
-    "Hello",
-    "world",
-    "is",
-    "really",
-    "cool",
-    "Hello",
-    "world",
-    "is",
-    "really",
-    "cool"
-  ];
-
   final Map<String, String> levelImages = {
     "reading_easy": "assets/icons/easy.png",
     "reading_medium": "assets/icons/medium.png",
@@ -79,7 +57,7 @@ class _WordListState extends State<WordList> {
     final String level = args["level"];
     final String type = args["type"];
 
-    String table = (type == "reading" ? "ReadingWords" : "typingWords");
+    String table = (type == "reading" ? "readingWords" : "readingWords");
 
     return Scaffold(
       body: CustomScrollView(
@@ -139,7 +117,6 @@ class _WordListState extends State<WordList> {
             stream: DatabaseService().getWordsByLevelAsStream(table, level),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                print(snapshot.data.length);
                 List<Map<String, dynamic>> data = snapshot.data;
                 return SliverAnimatedList(
                   initialItemCount: data.length,
@@ -149,15 +126,31 @@ class _WordListState extends State<WordList> {
                     ReadingWord rw = ReadingWord.fromJsom(data[index]);
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReadingPage(
-                              readingWord: rw,
+                        if (type == "reading") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReadingPage(
+                                readingWord: rw,
+                              ),
+                              settings: RouteSettings(arguments: word),
                             ),
-                            settings: RouteSettings(arguments: word),
-                          ),
-                        );
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TypingPage(
+                                  typingWord: TypingWord(
+                                word: rw.word,
+                                lastAccuracy: rw.lastAccuracy,
+                                level: rw.level,
+                                lastAttemptOn: rw.lastAttemptOn,
+                              )),
+                              settings: RouteSettings(arguments: word),
+                            ),
+                          );
+                        }
                       },
                       child: Center(
                         child: TweenAnimationBuilder<double>(

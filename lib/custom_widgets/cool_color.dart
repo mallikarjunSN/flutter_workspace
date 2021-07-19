@@ -33,9 +33,39 @@ class CoolColor {
     0x16A085,
   ];
 
+  final List<Color> _flutterColors = [
+    Colors.amber,
+    Colors.blue,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+    Colors.cyan,
+    Colors.blueAccent,
+    Colors.cyanAccent,
+    Colors.indigo,
+    Colors.limeAccent,
+    Colors.pink,
+    Color(0xFF77A1D3),
+    Color(0xFF753A88),
+  ];
+
+  List<Color> nRandomColors(int n) {
+    List<Color> colors = [];
+    for (var i = 0; i < n;) {
+      Color color = _flutterColors[Random().nextInt(_flutterColors.length - 1)];
+      if (colors.contains(color)) {
+        continue;
+      } else {
+        colors.add(color);
+        i++;
+      }
+    }
+
+    return colors;
+  }
+
   List<Color> getRandomColors(int n) {
     List<Color> colors = [];
-
     for (var i = 0; i < n;) {
       Color color = _colors[Random().nextInt(_colors.length - 1)];
       if (colors.contains(color)) {

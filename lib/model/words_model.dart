@@ -21,7 +21,9 @@ class ReadingWord {
     this.syllables = data["syllables"];
     this.syllablesPron = data["syllablesPron"];
     this.lastAccuracy = data["lastAccuracy"];
-    this.lastAttemptOn = (data["lastAttemptOn"]!= null?DateTime.tryParse(data["lastAttemptOn"]) : null);
+    this.lastAttemptOn = (data["lastAttemptOn"] != null
+        ? DateTime.tryParse(data["lastAttemptOn"])
+        : null);
   }
 
   Map<String, dynamic> toJson() {
@@ -37,26 +39,32 @@ class ReadingWord {
 
 class TypingWord {
   String word;
+  String level;
   double lastAccuracy;
   DateTime lastAttemptOn;
 
   TypingWord({
     this.word,
+    this.level,
     this.lastAccuracy,
     this.lastAttemptOn,
   });
 
   TypingWord.fromJsom(Map<String, dynamic> data) {
-    this.word = data["WORD"];
-    this.lastAccuracy = data["LAST_ACCURACY"];
-    this.lastAttemptOn = data["LAST_ATTEMPT_ON"];
+    this.word = data["word"];
+    this.level = data["level"];
+    this.lastAccuracy = data["lastAccuracy"];
+    this.lastAttemptOn = (data["lastAttemptOn"] == null
+        ? null
+        : DateTime.tryParse(data["lastAttemptOn"]));
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "WORD": this.word,
-      "LAST_ACCURACY": this.lastAccuracy,
-      "LAST_ATTEMPT_ON": this.lastAttemptOn,
+      "word": this.word,
+      "level": this.level,
+      "lastAccuracy": this.lastAccuracy,
+      "lastAttemptOn": this.lastAttemptOn,
     };
   }
 }

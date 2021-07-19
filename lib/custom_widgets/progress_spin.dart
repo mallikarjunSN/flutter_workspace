@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class PrgSpin extends StatefulWidget {
-  const PrgSpin({key}) : super(key: key);
+  const PrgSpin({@required this.progress, key}) : super(key: key);
+
+  final double progress;
 
   @override
   _PrgSpinState createState() => _PrgSpinState();
 }
 
 class _PrgSpinState extends State<PrgSpin> {
-  double _progress = 0.7;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,7 +33,7 @@ class _PrgSpinState extends State<PrgSpin> {
             ),
             child: TweenAnimationBuilder<double>(
               duration: Duration(milliseconds: 3000),
-              tween: Tween(begin: 0, end: _progress),
+              tween: Tween(begin: 0, end: widget.progress),
               curve: Curves.bounceOut,
               builder: (context, value, child) {
                 return Text(
@@ -52,7 +52,7 @@ class _PrgSpinState extends State<PrgSpin> {
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(55)),
             child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: _progress),
+              tween: Tween(begin: 0, end: widget.progress),
               duration: Duration(milliseconds: 3000),
               curve: Curves.bounceOut,
               builder: (context, value, child) {

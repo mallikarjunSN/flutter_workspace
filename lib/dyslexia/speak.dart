@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:hello/model/words_model.dart';
+import 'package:hello/services/tts_service.dart';
 
 class SpeakDemo extends StatefulWidget {
   const SpeakDemo({@required this.readingWord, key}) : super(key: key);
@@ -12,45 +12,13 @@ class SpeakDemo extends StatefulWidget {
 }
 
 class _SpeakDemoState extends State<SpeakDemo> {
-  double rate = 1.0;
-  double pitch = 1.0;
-  double volume = 0.7;
-
-  FlutterTts flutterTts;
-
   @override
   void initState() {
     super.initState();
-    _initFlutterTts();
+    parts = widget.readingWord.syllables.split(" ");
   }
 
   List<String> parts;
-
-  void _initFlutterTts() {
-    flutterTts = FlutterTts();
-
-    parts = widget.readingWord.syllables.split(" ");
-
-    flutterTts.setStartHandler(() {
-      print("speaking");
-    });
-
-    flutterTts.setCompletionHandler(() {
-      print("COmpleted");
-    });
-
-    flutterTts.setCancelHandler(() {
-      print("cancelled");
-    });
-
-    flutterTts.setPauseHandler(() {
-      print("Paused");
-    });
-
-    flutterTts.setContinueHandler(() {
-      print("continued");
-    });
-  }
 
   final Map<dynamic, dynamic> practiceWord = {
     "word": "graduation",
@@ -58,12 +26,11 @@ class _SpeakDemoState extends State<SpeakDemo> {
     "parts": ["gra", "du", "ation"]
   };
 
+  TtsService _ttsService = TtsService();
+
   int index = 0;
 
   Future _speak(var pWord) async {
-    flutterTts.setPitch(pitch);
-    flutterTts.setVolume(volume);
-
     String _fullWord = widget.readingWord.word;
 
     List<String> phonemes = widget.readingWord.syllablesPron.split(" ");
@@ -72,11 +39,10 @@ class _SpeakDemoState extends State<SpeakDemo> {
       highlightPart = true;
     });
     index = 0;
-    flutterTts.setSpeechRate(rate * 0.8);
     for (var word in phonemes) {
+      _ttsService.setSpeechRate(0.6);
       if (word.isNotEmpty) {
-        await flutterTts.awaitSpeakCompletion(true);
-        await flutterTts.speak(word);
+        await _ttsService.speak(word);
       }
       setState(() {
         index += 1;
@@ -89,10 +55,9 @@ class _SpeakDemoState extends State<SpeakDemo> {
       highlightWhole = true;
     });
 
-    flutterTts.setSpeechRate(rate);
+    _ttsService.setSpeechRate(0.65);
     if (_fullWord.isNotEmpty) {
-      await flutterTts.awaitSpeakCompletion(true);
-      await flutterTts.speak(_fullWord);
+      await _ttsService.speak(_fullWord);
     }
     setState(() {
       highlightWhole = false;
@@ -105,7 +70,7 @@ class _SpeakDemoState extends State<SpeakDemo> {
 
   @override
   void dispose() {
-    flutterTts.stop();
+    _ttsService.stop();
     super.dispose();
   }
 

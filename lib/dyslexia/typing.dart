@@ -1,142 +1,294 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:hello/model/user_progress.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hello/custom_widgets/anime_button.dart';
+import 'package:hello/custom_widgets/cool_color.dart';
+import 'package:hello/custom_widgets/progress_spin.dart';
+import 'package:hello/model/words_model.dart';
+import 'package:hello/services/tts_service.dart';
 import 'package:string_similarity/string_similarity.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'custom_dialog.dart';
 
-class TypingAssessment extends StatefulWidget {
+class TypingPage extends StatefulWidget {
+  TypingPage({@required this.typingWord});
+  final TypingWord typingWord;
   @override
-  _TypingAssessmentState createState() => _TypingAssessmentState();
+  _TypingPageState createState() => _TypingPageState();
 }
 
-class _TypingAssessmentState extends State<TypingAssessment> {
-  List<String> words;
-
-  final _wordKey = GlobalKey<FormState>();
-
+class _TypingPageState extends State<TypingPage> {
   String enteredWord;
 
   void updateProgress(String originalWord) {}
 
   double accuracy = 0;
+  @override
+  void initState() {
+    super.initState();
+    originalWord = widget.typingWord.word;
+    initializeColors();
+    shuffledWord = shuffle();
+  }
 
-  void getWord(BuildContext context, String word) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: Text(
-              "Enter \n \"$word\"",
-              textAlign: TextAlign.center,
+  List<bool> matchStatus = [];
+
+  void initializeColors() {
+    List<Color> alphaColors = CoolColor().nRandomColors(originalWord.length);
+    int i = 0;
+    for (var char in originalWord.characters) {
+      colorMap.putIfAbsent(char.toString(), () => alphaColors.elementAt(i++));
+      matchStatus.add(false);
+    }
+  }
+
+  String originalWord;
+
+  Map<String, Color> colorMap = {};
+
+  int current = 0;
+
+  List<Widget> displayOriginal() {
+    List<Widget> letters = [];
+
+    for (int i = 0; i < originalWord.length; i++) {
+      letters.add(Text(
+        originalWord[i],
+        style: TextStyle(
+          fontSize: (i == current ? 50 : 25),
+          fontWeight: FontWeight.bold,
+          color: colorMap[originalWord[i]],
+        ),
+      ));
+    }
+
+    return letters;
+  }
+
+  List<String> shuffle() {
+    List<String> shuffled = originalWord.characters.map((e) => e).toList();
+
+    shuffled.shuffle();
+
+    return shuffled;
+  }
+
+  List<String> shuffledWord = [];
+
+  bool correct = false;
+
+  String typedWord = "";
+
+  List<Widget> getBubbles() {
+    List<Widget> bubbles = [];
+
+    for (var i = 0; i < shuffledWord.length; i++) {
+      bubbles.add(
+        Draggable(
+          data: shuffledWord[i],
+          child: (Container(
+            height: 75,
+            width: 75,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.grey,
             ),
-            content: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(25))),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Form(
-                      key: _wordKey,
-                      child: TextFormField(
-                        textAlign: TextAlign.center,
-                        validator: (value) {
-                          return (value.isEmpty
-                              ? " Please enter the word"
-                              : null);
-                        },
-                        onChanged: (newValue) {
-                          setState(() {
-                            enteredWord = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                    Text(
-                        "Accuracy - ${(accuracy * 100.0).toStringAsPrecision(3)}")
-                  ]),
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  if (_wordKey.currentState.validate()) {
-                    setState(() {
-                      accuracy = StringSimilarity.compareTwoStrings(
-                          word.toLowerCase(), enteredWord.toLowerCase());
-                    });
-                  }
-                },
-                child: Text("compare"),
+            child: Text(
+              shuffledWord[i],
+              style: TextStyle(
+                color: colorMap[shuffledWord[i]],
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_wordKey.currentState.validate()) {
-                    updateProgress(word);
-                    print(enteredWord);
-                    setState(() {
-                      accuracy = 0;
-                    });
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text("submit"),
-              )
-            ],
+            ),
+          )),
+          childWhenDragging: Container(),
+          feedback: Material(
+            child: Container(
+              height: 75,
+              width: 75,
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey,
+              ),
+              child: Text(
+                shuffledWord[i],
+                style: TextStyle(
+                  color: colorMap[shuffledWord[i]],
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-        );
-      },
-    );
+          onDragStarted: () async {
+            // await TtsService().speak(shuffledWord[i]);
+          },
+        ),
+      );
+    }
+
+    return bubbles;
+  }
+
+  void onTypingCompleted() {}
+
+  void reset() {
+    setState(() {
+      current = 0;
+      shuffledWord = shuffle();
+      matchStatus = matchStatus.map((e) => false).toList();
+    });
+  }
+
+  double calcAccuracy() {
+    StringSimilarity.compareTwoStrings(
+        originalWord.substring(0, current), typedWord);
   }
 
   @override
   Widget build(BuildContext context) {
-    words = ModalRoute.of(context).settings.arguments;
-
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            "Typing Assessment",
+            "Typing Exercise",
             textAlign: TextAlign.start,
             style: TextStyle(fontSize: 25, color: Colors.amberAccent),
           ),
         ),
-        body: Center(
-          child: ListView.builder(
-              padding: EdgeInsets.all(10),
-              itemCount: words.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  height: 100,
-                  margin: EdgeInsets.only(top: 5, bottom: 5),
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        words.elementAt(index),
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      FloatingActionButton(
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.keyboard,
-                          color: Colors.black,
-                          size: 35,
-                        ),
-                        onPressed: () {
-                          getWord(context, words.elementAt(index));
-                        },
-                        heroTag: null,
-                      ),
-                    ],
+        body: Builder(
+          builder: (context) => Center(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Wrap(
+                    runSpacing: 10.0,
+                    spacing: 5.0,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    alignment: WrapAlignment.spaceEvenly,
+                    children: displayOriginal(),
                   ),
-                );
-              }),
+                  PrgSpin(
+                    progress: 0.7,
+                  ),
+                ],
+              ),
+              DragTarget<String>(
+                onWillAccept: (data) => (data == originalWord[current]),
+                onAcceptWithDetails: (details) {
+                  print(details.data);
+                },
+                builder: (context, candidateData, rejectedData) {
+                  return Container(
+                    height: 100,
+                    width: 100,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.tealAccent),
+                    child: FaIcon(
+                      FontAwesomeIcons.plus,
+                      color: Colors.blue,
+                      size: 50,
+                    ),
+                  );
+                },
+                onAccept: (data) {
+                  setState(() {
+                    shuffledWord.remove(originalWord[current]);
+                    matchStatus[current] = true;
+                    typedWord += data;
+                    current++;
+                  });
+                  if (current == originalWord.length) {
+                    onTypingCompleted();
+                  }
+                },
+              ),
+              Wrap(
+                alignment: WrapAlignment.spaceEvenly,
+                spacing: 20.0,
+                runSpacing: 10.0,
+                children: [],
+              ),
+              Wrap(
+                runSpacing: 10.0,
+                spacing: 10.0,
+                alignment: WrapAlignment.spaceEvenly,
+                children: getBubbles(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  AnimeButton(
+                    width: 120,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          "Reset",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Container(
+                          height: 40,
+                          width: 40,
+                          padding: EdgeInsets.all(5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.red),
+                          child: FaIcon(
+                            Icons.refresh_rounded,
+                            size: 30,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onPressed: reset,
+                  ),
+                  AnimeButton(
+                      width: 120,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "Submit",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Container(
+                            height: 40,
+                            width: 40,
+                            padding: EdgeInsets.all(5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle, color: Colors.green),
+                            child: FaIcon(
+                              Icons.done,
+                              size: 30,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onPressed: () {})
+                ],
+              )
+            ],
+          )),
         ));
+  }
+}
+
+class AlphaBubble extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Draggable(child: Container(), feedback: Container());
   }
 }
