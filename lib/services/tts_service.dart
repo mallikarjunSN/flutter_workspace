@@ -1,28 +1,49 @@
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TtsService {
-  double rate = 0.7;
-  double pitch = 1.0;
-  double volume = 0.7;
+  double speechRate;
+  double pitch;
+  double volume;
 
   FlutterTts _flutterTts;
+
+  SharedPreferences _sharedPreferences;
 
   TtsService() {
     _initFlutterTts();
     setPitch(pitch);
-    setSpeechRate(rate);
+    setSpeechRate(speechRate);
     setVolume(volume);
   }
 
-  void setPitch(double p) {
+  Future<Map<String, double>> getSpeechCharacteristics() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    speechRate = _sharedPreferences.getDouble("speechRate") ?? speechRate;
+    pitch = _sharedPreferences.getDouble("pitch") ?? pitch;
+    volume = _sharedPreferences.getDouble("volume") ?? volume;
+
+    var res = {"speechRate": speechRate, "pitch": pitch, "volume": volume};
+    print(res);
+    return res;
+  }
+
+  Future<void> setPitch(double p) async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    await _sharedPreferences.setDouble("pitch", p);
+    print(_sharedPreferences.getDouble("pitch"));
     _flutterTts.setPitch(p);
   }
 
-  void setSpeechRate(double r) {
+  Future<void> setSpeechRate(double r) async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    await _sharedPreferences.setDouble("speechRate", r);
     _flutterTts.setSpeechRate(r);
   }
 
-  void setVolume(double v) {
+  Future<void> setVolume(double v) async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    await _sharedPreferences.setDouble("speechRate", v);
     _flutterTts.setVolume(v);
   }
 
@@ -31,8 +52,14 @@ class TtsService {
     await _flutterTts.speak(text);
   }
 
-  void _initFlutterTts() {
+  Future<void> _initFlutterTts() async {
     _flutterTts = FlutterTts();
+
+    _sharedPreferences = await SharedPreferences.getInstance();
+
+    speechRate = _sharedPreferences.getDouble("speechRate") ?? 0.7;
+    pitch = _sharedPreferences.getDouble("pitch") ?? 1.0;
+    volume = _sharedPreferences.getDouble("volume") ?? 0.7;
 
     _flutterTts.setStartHandler(() {
       // print("speaking");

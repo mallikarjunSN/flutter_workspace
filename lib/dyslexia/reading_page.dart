@@ -166,7 +166,7 @@ class _ReadingPageState extends State<ReadingPage> {
           Text(
             _text,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 20),
+            style: TextStyle(fontSize: 20),
           ),
           Container(
             child: Speedo(value: accuracy),

@@ -80,7 +80,8 @@ class _SpeakDemoState extends State<SpeakDemo> {
       height: 100,
       width: 300,
       decoration: BoxDecoration(
-          border: Border.all(), borderRadius: BorderRadius.circular(20)),
+          border: Border.all(color: Colors.cyan),
+          borderRadius: BorderRadius.circular(20)),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -100,7 +101,7 @@ class _SpeakDemoState extends State<SpeakDemo> {
                             color: (highlightWhole ||
                                     index == parts.indexOf(txt) && highlightPart
                                 ? Colors.amber
-                                : Colors.black),
+                                : Theme.of(context).accentColor),
                             fontWeight: FontWeight.bold),
                       ))
                   .toList(),

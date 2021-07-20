@@ -82,14 +82,14 @@ class MeterBar extends CustomPainter {
         paint.strokeWidth = 3;
 
         fontSize = (count == 0 || count == 25 || count == 50
-            ? height / 12
+            ? height / 18
             : height / 18);
 
         textPainter.text = TextSpan(
           text: (count * 2).toString(),
           style: TextStyle(
-            color: Colors.white,
-            backgroundColor: Colors.black.withOpacity(0.5),
+            color: Colors.cyan,
+            // backgroundColor: Colors.black.withOpacity(0.5),
             fontWeight: FontWeight.bold,
             fontSize: fontSize,
           ),
@@ -104,10 +104,10 @@ class MeterBar extends CustomPainter {
       y2 = centerY + (width / 2) * sin(angle * pi / 180);
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
 
-      if (count % 10 == 0 || count == 25) {
+      if ((count) % 5 == 0) {
         var movFactor = -5.0;
         if (count == 50) {
-          movFactor = fontSize * 2;
+          movFactor = fontSize * 1.5;
         } else if (count > 25) {
           movFactor = fontSize + 5;
         } else if (count == 25) movFactor = (fontSize + 5) / 2;
@@ -116,7 +116,7 @@ class MeterBar extends CustomPainter {
         y1 = centerY + (width - barWidth) / 2.15 * sin(angle * pi / 180);
 
         textPainter.layout(minWidth: 0.0, maxWidth: double.maxFinite);
-        textPainter.paint(canvas, Offset((x1 - movFactor), (y1 - 5)));
+        textPainter.paint(canvas, Offset((x1 - movFactor * 1.25), (y1 - 5)));
       }
 
       count += 1;
