@@ -57,7 +57,7 @@ class _WordListState extends State<WordList> {
     final String level = args["level"];
     final String type = args["type"];
 
-    String table = (type == "reading" ? "readingWords" : "readingWords");
+    String table = (type == "reading" ? "readingWords" : "typingWords");
 
     return Scaffold(
       body: CustomScrollView(
@@ -65,12 +65,18 @@ class _WordListState extends State<WordList> {
           SliverAppBar(
             backgroundColor: Colors.transparent,
             actions: [
-              IconButton(
-                  icon: Icon(Icons.settings),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => TtsSettings()));
-                  })
+              (type == "reading"
+                  ? IconButton(
+                      icon: Icon(Icons.settings),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TtsSettings()));
+                      })
+                  : SizedBox(
+                      width: 50,
+                    ))
             ],
             collapsedHeight: 210,
             pinned: true,
@@ -123,7 +129,16 @@ class _WordListState extends State<WordList> {
                   itemBuilder: (context, index, animation) {
                     String word = data[index]["word"];
                     double lac = data[index]["lastAccuracy"];
-                    ReadingWord rw = ReadingWord.fromJsom(data[index]);
+                    ReadingWord rw;
+                    DateTime lao;
+                    TypingWord tw;
+                    if (table == "readingWords") {
+                      rw = ReadingWord.fromJsom(data[index]);
+                      lao = rw.lastAttemptOn;
+                    } else {
+                      tw = TypingWord.fromJsom(data[index]);
+                      lao = tw.lastAttemptOn;
+                    }
                     return GestureDetector(
                       onTap: () {
                         if (type == "reading") {
@@ -133,7 +148,6 @@ class _WordListState extends State<WordList> {
                               builder: (context) => ReadingPage(
                                 readingWord: rw,
                               ),
-                              settings: RouteSettings(arguments: word),
                             ),
                           );
                         } else {
@@ -141,13 +155,8 @@ class _WordListState extends State<WordList> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => TypingPage(
-                                  typingWord: TypingWord(
-                                word: rw.word,
-                                lastAccuracy: rw.lastAccuracy,
-                                level: rw.level,
-                                lastAttemptOn: rw.lastAttemptOn,
-                              )),
-                              settings: RouteSettings(arguments: word),
+                                typingWord: tw,
+                              ),
                             ),
                           );
                         }
@@ -164,20 +173,50 @@ class _WordListState extends State<WordList> {
                               child: Center(
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceAround,
                                   children: [
                                     Text(
                                       word,
                                       style: TextStyle(
-                                          color: Colors.indigo,
+                                          color: Colors.cyan,
                                           fontSize: 24,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    CircularProgressIndicator(
-                                      value: lac,
-                                      backgroundColor:
-                                          Colors.blue.withOpacity(0.1),
-                                    ),
+                                    (lao == null
+                                        ? Container(
+                                            padding: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                border: Border.all(
+                                                    color: Colors.cyanAccent)),
+                                            child: Text(
+                                              "NEW",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          )
+                                        : Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text("Last attempt accuracy"),
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.3,
+                                                child: LinearProgressIndicator(
+                                                  value: lac / 100.0,
+                                                  backgroundColor: Colors.blue
+                                                      .withOpacity(0.1),
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                          Colors.white),
+                                                ),
+                                              ),
+                                            ],
+                                          ))
                                   ],
                                 ),
                               ),

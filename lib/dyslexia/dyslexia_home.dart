@@ -6,7 +6,6 @@ import 'package:hello/dyslexia/exercises_home.dart';
 import 'package:hello/dyslexia/my_btm_bar.dart';
 import 'package:hello/dyslexia/progress_ui.dart';
 import 'package:hello/model/r_words.dart';
-import 'package:hello/model/words_model.dart';
 import 'package:hello/services/db_service.dart';
 import 'package:hello/services/other_services.dart';
 
@@ -26,10 +25,17 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
     ProgressUI(),
   ];
 
+  int count = 0;
+
   @override
   Future<void> dispose() async {
     await DatabaseService().closeDatabase();
     super.dispose();
+  }
+
+  void initState() {
+    super.initState();
+    DatabaseService().intializeDatabase();
   }
 
   double currentSize = 30;
@@ -62,7 +68,7 @@ class _DyslexiaHomeState extends State<DyslexiaHome> {
           fullName: "Rajesh",
         ),
         body: FutureBuilder<void>(
-          future: DatabaseService().intializeDatabase(),
+          future: DatabaseService().populateDB(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return Center(
@@ -103,10 +109,12 @@ class _HomeState extends State<Home> {
 
   String str;
 
-  List<Map<String, String>> rw = Raw.words;
+  int count = 0;
+
+  List<Map<String, String>> tw = Raw.typingWords;
   Future<void> upload() async {
-    for (var w in rw) {
-      await OtherServices().uploadReadingWord(w).then((value) {
+    for (var w in tw) {
+      await OtherServices().uploadTypingWord(w).then((value) {
         setState(() {
           count++;
         });
@@ -116,23 +124,16 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> uploadSingle() async {
-    await OtherServices().uploadReadingWord(rw[0]).then((value) {
+    await OtherServices().uploadTypingWord(tw[0]).then((value) {
       print("success");
     });
   }
 
-  void getWords() async {
-    List<ReadingWord> rws =
-        await DatabaseService().getReadingWordsByLevel("medium");
-
-    print(rws.length);
-  }
-
   void delete() {
-    DatabaseService().deleteReadingWords();
+    // DatabaseService().deleteReadingWords();
+    DatabaseService().deleteTypingWords();
   }
 
-  int count = 0;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -140,11 +141,13 @@ class _HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text(
-            "fgkldfhkgfgkhdfkghdfkghdfkjghdfkjghdfkjghdfjkghjdkfghjkdfhgkjdhf",
+            "Hello",
             textAlign: TextAlign.center,
           ),
-          ElevatedButton(onPressed: getWords, child: Text("get rWords")),
-          ElevatedButton(onPressed: delete, child: Text("delete rWords")),
+          ElevatedButton(onPressed: upload, child: Text("Upload all")),
+          ElevatedButton(onPressed: uploadSingle, child: Text("Upload single")),
+          // ElevatedButton(onPressed: delete, child: Text("Delete rwords")),
+          ElevatedButton(onPressed: delete, child: Text("Delete twords")),
           ElevatedButton(
             onPressed: () async {
               await DatabaseService().deleteDB();

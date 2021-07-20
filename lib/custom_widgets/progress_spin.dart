@@ -32,7 +32,7 @@ class _PrgSpinState extends State<PrgSpin> {
               color: Colors.amber,
             ),
             child: TweenAnimationBuilder<double>(
-              duration: Duration(milliseconds: 3000),
+              duration: Duration(milliseconds: 2000),
               tween: Tween(begin: 0, end: widget.progress),
               curve: Curves.bounceOut,
               builder: (context, value, child) {
@@ -53,7 +53,7 @@ class _PrgSpinState extends State<PrgSpin> {
                 borderRadius: BorderRadius.circular(55)),
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: widget.progress),
-              duration: Duration(milliseconds: 3000),
+              duration: Duration(milliseconds: 2000),
               curve: Curves.bounceOut,
               builder: (context, value, child) {
                 return CircularProgressIndicator(

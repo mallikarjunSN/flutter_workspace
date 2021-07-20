@@ -77,13 +77,10 @@ class MyAppState extends State<MyApp> {
       create: (_) => ThemeManager(),
       child: Consumer<ThemeManager>(
           builder: (context, ThemeManager themeManager, child) {
-        print("in main ${themeManager.theme}");
         return MaterialApp(
           home: getHome(),
           theme: (themeManager.isDark ? ThemeData.dark() : ThemeData.light()),
-          // theme: ThemeData.light(),
           debugShowCheckedModeBanner: false,
-          // showSemanticsDebugger: true,
         );
       }),
     );

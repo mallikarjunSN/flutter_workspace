@@ -8,22 +8,26 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseService {
   final ExerciseDatabase _db = ExerciseDatabase.instance;
 
-  Future<List<ReadingWord>> getReadingWordsByLevel(String level) async {
-    List<Map<String, dynamic>> data = await _db.read("readingWords", level);
+  Future<void> populateDB() async {
+    List<Map<String, dynamic>> data = await _db.readAll("readingWords");
 
     List<ReadingWord> rWords = [];
 
     if (data.length == 0) {
       await populateReadingWords().then((value) async {
-        data = await _db.read("readingWords", level);
+        // data = await _db.read("readingWords", "easy");
       });
     }
 
-    data.forEach((element) {
-      rWords.add(ReadingWord.fromJsom(element));
-    });
+    data = await _db.readAll("typingWords");
 
-    return rWords;
+    print(data.length);
+
+    if (data.length == 0) {
+      await populateTypingWords().then((value) async {
+        data = await _db.read("readingWords", "easy");
+      });
+    }
   }
 
   Future<List<Progress>> getProgressDetails() async {
@@ -71,19 +75,30 @@ class DatabaseService {
     await _db.delete("readingWords");
   }
 
+  Future<void> deleteTypingWords() async {
+    await _db.delete("typingWords");
+  }
+
   Future<void> intializeDatabase() async {
-    return await _db.initialization();
+    await _db.initialization();
   }
 
   Future<void> populateReadingWords() async {
     QuerySnapshot snapshot = await OtherServices().getAllReadingWords();
-    print("populating ${snapshot.docs.length}");
+    print("populating ${snapshot.docs.length} reading");
     for (var doc in snapshot.docs) {
       await _db.insert("readingWords", doc.data());
     }
   }
 
-  Future<void> populate() async {}
+  Future<void> populateTypingWords() async {
+    QuerySnapshot snapshot = await OtherServices().getAllTypingWords();
+
+    print("populating ${snapshot.docs.length} typing ");
+    for (var doc in snapshot.docs) {
+      await _db.insert("typingWords", doc.data());
+    }
+  }
 }
 
 class ExerciseDatabase {
@@ -99,6 +114,10 @@ class ExerciseDatabase {
 
     _database = await _initDB('exercise.db');
     return _database;
+  }
+
+  Future<List<Map<String, dynamic>>> readAll(String table) async {
+    return await _database.query(table);
   }
 
   Future<void> deleteDB() async {

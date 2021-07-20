@@ -104,7 +104,7 @@ class MeterBar extends CustomPainter {
       y2 = centerY + (width / 2) * sin(angle * pi / 180);
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
 
-      if (count % 5 == 0) {
+      if (count % 10 == 0 || count == 25) {
         var movFactor = -5.0;
         if (count == 50) {
           movFactor = fontSize * 2;

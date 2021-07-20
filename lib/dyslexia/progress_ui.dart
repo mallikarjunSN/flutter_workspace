@@ -21,7 +21,23 @@ class _ProgressState extends State<ProgressUI> {
 
   List<Progress> filter(List<Progress> pd) {
     List<Progress> filteredData = [];
-    return pd;
+    DateTime now = DateTime.now();
+    DateTime thisMonth = DateTime(now.year, now.month);
+    DateTime today = DateTime(now.year, now.month, now.day);
+    for (var p in pd) {
+      if (current == 2) {
+        if (thisMonth.compareTo(p.lastAttemptOn) < 1) {
+          filteredData.add(p);
+        }
+      } else if (current == 1) {
+        if (today.compareTo(p.lastAttemptOn) < 1) {
+          filteredData.add(p);
+        }
+      } else {
+        filteredData = pd;
+      }
+    }
+    return filteredData;
   }
 
   int totalWordsCount = 0;
@@ -35,14 +51,17 @@ class _ProgressState extends State<ProgressUI> {
     totalAccuracy = 0.0;
     averageAccuracy = 0.0;
     for (var item in lp) {
-      print(item.lastAccuracy);
       totalAccuracy += item.lastAccuracy;
       data.add(FlSpot((i).toDouble(), (totalAccuracy / i)));
       i++;
     }
-    averageAccuracy = totalAccuracy / i;
+    averageAccuracy = totalAccuracy / (i - 1);
     return data;
   }
+
+  int current = 0;
+
+  List<String> categories = ["All time", "Today", "This month"];
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +77,7 @@ class _ProgressState extends State<ProgressUI> {
               interval =
                   (selectedData.length > 6 ? selectedData.length ~/ 6 : 1);
               return Stack(
+                fit: StackFit.expand,
                 children: [
                   Positioned(
                     top: 0,
@@ -65,7 +85,7 @@ class _ProgressState extends State<ProgressUI> {
                     right: 0,
                     child: Container(
                       width: double.infinity,
-                      height: 100,
+                      height: height * 0.12,
                       decoration: BoxDecoration(
                           color: CoolColor.primaryColor,
                           borderRadius: BorderRadius.only(
@@ -86,108 +106,151 @@ class _ProgressState extends State<ProgressUI> {
                     ),
                   ),
                   Positioned(
-                    top: height * 0.14,
+                    top: height * 0.12,
                     left: 0,
                     right: 0,
-                    child: SizedBox(
-                      height: 300,
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            top: 20, bottom: 20, right: 10, left: 5),
-                        color: const Color(0xff020227).withOpacity(0.75),
-                        child: LineChart(
-                          LineChartData(
-                            minX: 0,
-                            maxX: selectedData.length.toDouble(),
-                            minY: 0,
-                            maxY: 100,
-                            titlesData: LineTitles.getTitleData(interval),
-                            gridData: FlGridData(
-                              show: true,
-                              getDrawingHorizontalLine: (value) {
-                                if (value % 20 == 0) {
-                                  return FlLine(
-                                    strokeWidth: 0.7,
-                                    color: Colors.white.withOpacity(0.5),
-                                  );
-                                } else
-                                  return FlLine(
-                                    strokeWidth: 0,
-                                  );
-                              },
-                              drawVerticalLine: false,
-                              getDrawingVerticalLine: (value) {
-                                return FlLine(
-                                  color: Colors.white.withOpacity(0.5),
-                                  strokeWidth: 1,
-                                );
-                              },
-                            ),
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border(
-                                left: BorderSide(
-                                  color: Colors.white.withOpacity(0.5),
-                                  width: 2,
-                                ),
-                                bottom: BorderSide(
-                                  color: Colors.white.withOpacity(0.5),
-                                  width: 2.0,
-                                ),
-                              ),
-                            ),
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: getChartData(selectedData),
-                                isCurved: true,
-                                colors: [
-                                  Colors.orange,
-                                  Colors.yellow,
-                                  Colors.green,
-                                  Colors.blue,
-                                ],
-                                preventCurveOverShooting: true,
-                                barWidth: 3,
-                                dotData: FlDotData(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          height: 300,
+                          child: Container(
+                            padding: EdgeInsets.only(
+                                top: 20, bottom: 20, right: 10, left: 5),
+                            color: const Color(0xff020227).withOpacity(0.75),
+                            child: LineChart(
+                              LineChartData(
+                                minX: 0,
+                                maxX: selectedData.length.toDouble(),
+                                minY: 0,
+                                maxY: 100,
+                                titlesData: LineTitles.getTitleData(interval),
+                                gridData: FlGridData(
                                   show: true,
-                                  checkToShowDot: (spot, barData) {
-                                    if (spot.x % interval == 0) {
-                                      return true;
-                                    } else {
-                                      return false;
-                                    }
+                                  getDrawingHorizontalLine: (value) {
+                                    if (value % 20 == 0) {
+                                      return FlLine(
+                                        strokeWidth: 0.7,
+                                        color: Colors.white.withOpacity(0.5),
+                                      );
+                                    } else
+                                      return FlLine(
+                                        strokeWidth: 0,
+                                      );
                                   },
-                                  // getDotPainter: (a, b, c, d) => FlDotPainter(),
+                                  drawVerticalLine: false,
+                                  getDrawingVerticalLine: (value) {
+                                    return FlLine(
+                                      color: Colors.white.withOpacity(0.5),
+                                      strokeWidth: 1,
+                                    );
+                                  },
                                 ),
-                                belowBarData: BarAreaData(
+                                borderData: FlBorderData(
                                   show: true,
-                                  colors: [Colors.cyan]
-                                      .map((color) => color.withOpacity(0.3))
-                                      .toList(),
+                                  border: Border(
+                                    left: BorderSide(
+                                      color: Colors.white.withOpacity(0.5),
+                                      width: 2,
+                                    ),
+                                    bottom: BorderSide(
+                                      color: Colors.white.withOpacity(0.5),
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                ),
+                                lineBarsData: [
+                                  LineChartBarData(
+                                    spots: getChartData(selectedData),
+                                    isCurved: true,
+                                    colors: [
+                                      Colors.orange,
+                                      Colors.yellow,
+                                      Colors.green,
+                                      Colors.blue,
+                                    ],
+                                    preventCurveOverShooting: true,
+                                    barWidth: 3,
+                                    dotData: FlDotData(
+                                      show: true,
+                                      checkToShowDot: (spot, barData) {
+                                        if (spot.x % interval == 0) {
+                                          return true;
+                                        } else {
+                                          return false;
+                                        }
+                                      },
+                                    ),
+                                    belowBarData: BarAreaData(
+                                      show: true,
+                                      colors: [Colors.cyan]
+                                          .map(
+                                              (color) => color.withOpacity(0.3))
+                                          .toList(),
+                                    ),
+                                  ),
+                                ],
+                                axisTitleData: FlAxisTitleData(
+                                  bottomTitle: AxisTitle(
+                                    showTitle: true,
+                                    titleText: "Number of attempts",
+                                    textStyle: TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                  ),
+                                  leftTitle: AxisTitle(
+                                    showTitle: true,
+                                    titleText: "Cumulative Average (%)",
+                                    reservedSize: 12,
+                                    margin: 0,
+                                    textStyle: TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                  ),
                                 ),
                               ),
-                            ],
-                            axisTitleData: FlAxisTitleData(
-                              bottomTitle: AxisTitle(
-                                showTitle: true,
-                                titleText: "Number of attempts",
-                                textStyle: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                              leftTitle: AxisTitle(
-                                showTitle: true,
-                                titleText: "Average accuracy (%)",
-                                reservedSize: 16,
-                                margin: 0,
-                                textStyle: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
+                              swapAnimationCurve: Curves.bounceOut,
+                              swapAnimationDuration:
+                                  Duration(milliseconds: 5000),
                             ),
                           ),
-                          swapAnimationCurve: Curves.bounceOut,
-                          swapAnimationDuration: Duration(milliseconds: 5000),
                         ),
-                      ),
+                        SizedBox(height: 10),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: categories.map((e) {
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    current = categories.indexOf(e);
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(7),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.grey,
+                                    border: Border.all(
+                                      color: (e == categories[current]
+                                          ? Colors.cyanAccent
+                                          : Colors.black),
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    e,
+                                    style: TextStyle(
+                                        color: (e == categories[current]
+                                            ? Colors.cyanAccent
+                                            : Colors.black),
+                                        fontSize: 18,
+                                        fontWeight: (e == categories[current]
+                                            ? FontWeight.bold
+                                            : FontWeight.normal)),
+                                  ),
+                                ),
+                              );
+                            }).toList()),
+                      ],
                     ),
                   ),
                   Positioned(
@@ -195,54 +258,64 @@ class _ProgressState extends State<ProgressUI> {
                       width: width,
                       child: Container(
                         padding: EdgeInsets.all(30),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              "Total words attempted",
-                              style: TextStyle(fontSize: 18),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              progressData.length.toString(),
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                            Divider(
-                              thickness: 1.5,
-                            ),
-                            Text(
-                              "Average Accuracy",
-                              style: TextStyle(fontSize: 18),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: 70,
-                              width: 70,
-                              child: Stack(
-                                fit: StackFit.expand,
-                                alignment: Alignment.center,
+                        child: (progressData.length == 0
+                            ? Text(
+                                "You have not attempted any exercise till now, start now",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                ),
+                              )
+                            : Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  CircularProgressIndicator(
-                                    value: 0.88,
-                                    backgroundColor:
-                                        Colors.cyan.withOpacity(0.25),
-                                    strokeWidth: 6,
+                                  Text(
+                                    "Total words attempted",
+                                    style: TextStyle(fontSize: 18),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  Center(
-                                      child: Text(
-                                    "",
+                                  Text(
+                                    progressData.length.toString(),
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.center,
-                                  ))
+                                  ),
+                                  Divider(
+                                    thickness: 1.5,
+                                  ),
+                                  Text(
+                                    "Average Accuracy",
+                                    style: TextStyle(fontSize: 18),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(
+                                    height: 70,
+                                    width: 70,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      alignment: Alignment.center,
+                                      children: [
+                                        CircularProgressIndicator(
+                                          value: averageAccuracy / 100.0,
+                                          backgroundColor:
+                                              Colors.cyan.withOpacity(0.25),
+                                          strokeWidth: 10,
+                                        ),
+                                        Center(
+                                            child: Text(
+                                          "${averageAccuracy.toStringAsFixed(1)} %",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
+                                        ))
+                                      ],
+                                    ),
+                                  )
                                 ],
-                              ),
-                            )
-                          ],
-                        ),
+                              )),
                       ))
                 ],
               );

@@ -323,7 +323,7 @@ class _LevelIconState extends State<LevelIcon> {
   Widget build(BuildContext context) {
     table = (widget.type.toLowerCase() == "reading"
         ? "readingWords"
-        : "readingWords");
+        : "typingWords");
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     return GestureDetector(
@@ -419,14 +419,13 @@ class _LevelIconState extends State<LevelIcon> {
                       DatabaseService().getCountAsStream(table, widget.level),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-
                       List<Map<String, dynamic>> data = snapshot.data;
                       int completed;
                       int total;
-                      if(data.length == 2){
+                      if (data.length == 2) {
                         completed = data[0]["C"];
                         total = data[1]["C"];
-                      }else{
+                      } else {
                         completed = total = data[0]["C"];
                       }
                       return Row(

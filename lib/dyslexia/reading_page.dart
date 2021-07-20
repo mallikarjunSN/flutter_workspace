@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/custom_widgets/anime_button.dart';
+import 'package:hello/custom_widgets/speed.dart';
 import 'package:hello/dyslexia/speak.dart';
 import 'package:hello/model/words_model.dart';
 import 'package:hello/services/db_service.dart';
@@ -34,6 +35,8 @@ class _ReadingPageState extends State<ReadingPage> {
   @override
   void initState() {
     super.initState();
+    originalWord = widget.readingWord.word;
+
     initSpeechState();
   }
 
@@ -64,6 +67,7 @@ class _ReadingPageState extends State<ReadingPage> {
   }
 
   void comaparision() {
+    print("$originalWord $_text");
     setState(() {
       accuracy = StringSimilarity.compareTwoStrings(
           originalWord.toLowerCase(), _text.toLowerCase());
@@ -93,7 +97,7 @@ class _ReadingPageState extends State<ReadingPage> {
   }
 
   String originalWord;
-  double accuracy = 0;
+  double accuracy = 0.0;
 
   void updateProgress(double accuracy) async {
     Map<String, dynamic> data = widget.readingWord.toJson();
@@ -164,38 +168,8 @@ class _ReadingPageState extends State<ReadingPage> {
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.black, fontSize: 20),
           ),
-          SizedBox(
-            height: 200,
-            width: 200,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Center(
-                  child: Container(
-                    height: 140,
-                    width: 140,
-                    decoration: BoxDecoration(
-                        color: Colors.yellow[800],
-                        borderRadius: BorderRadius.all(Radius.circular(70))),
-                    child: CircularProgressIndicator(
-                      value: accuracy,
-                      strokeWidth: 15,
-                      backgroundColor: Colors.grey.shade400,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    "Accuracy\n ${(accuracy * 100).toStringAsPrecision(3)} %",
-                    style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              ],
-            ),
+          Container(
+            child: Speedo(value: accuracy),
           ),
           SizedBox(
             height: 5,
@@ -237,8 +211,6 @@ class _ReadingPageState extends State<ReadingPage> {
 
   @override
   Widget build(BuildContext context) {
-    originalWord = ModalRoute.of(context).settings.arguments;
-    // print(widget.readingWord.lastAttemptOn);
     return Scaffold(
         body: _hasSpeech
             ? getUI()
