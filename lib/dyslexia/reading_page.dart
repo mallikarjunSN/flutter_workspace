@@ -40,6 +40,11 @@ class _ReadingPageState extends State<ReadingPage> {
     initSpeechState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> initSpeechState() async {
     bool hasSpeech = await speech.initialize(
       onStatus: (val) => print('onStatus: $val'),

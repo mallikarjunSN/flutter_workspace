@@ -8,6 +8,8 @@ class AboutPage extends StatefulWidget {
   _AboutPageState createState() => _AboutPageState();
 }
 
+double fontSize = 18.0;
+
 class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
@@ -17,12 +19,40 @@ class _AboutPageState extends State<AboutPage> {
           shadowColor: Colors.red[800],
           centerTitle: true,
           elevation: 4.00,
-          backgroundColor: CoolColor().getColor(0x753A88),
+          backgroundColor: CoolColor.primaryColor,
           title: Text("Dyslexia",
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               )),
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.zoom_in,
+                size: 40,
+              ),
+              onPressed: () {
+                setState(() {
+                  if (fontSize < 36) {
+                    fontSize += 2.0;
+                  }
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.zoom_out_sharp,
+                size: 40,
+              ),
+              onPressed: () {
+                setState(() {
+                  if (fontSize > 16) {
+                    fontSize -= 2.0;
+                  }
+                });
+              },
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -36,10 +66,13 @@ class _AboutPageState extends State<AboutPage> {
                       " how they relate to letters and words (decoding). Also called reading disability, dyslexia affects areas of the brain that process language.\n"
                       "Between 5% and 20% of all people have dyslexia. According to the Department of Biotechnology, the incidence of dyslexia "
                       "in India is estimated at 10% and nearly 35 million children in the country are thought to have this learning disability.",
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: fontSize),
                     )),
                 Container(
-                  child: new Center(child: Image.asset('assets/count.png')),
+                  padding: EdgeInsets.all(15),
+                  child: new ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: Image.asset('assets/count.png')),
                 ),
                 Container(
                     padding: const EdgeInsets.only(
@@ -49,17 +82,20 @@ class _AboutPageState extends State<AboutPage> {
                       "succeed in school with tutoring or a specialized education program. Emotional support also plays an important role.\n"
                       "Though there's no cure for dyslexia, early assessment and intervention result in the best outcome. "
                       "Sometimes dyslexia goes undiagnosed for years and isn't recognized until adulthood, but it's never too late to seek help.",
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: fontSize),
                     )),
                 Container(
-                  child: new Center(child: Image.asset('assets/dys.png')),
+                  padding: EdgeInsets.all(15),
+                  child: new ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: Image.asset('assets/dys.png')),
                 ),
                 Container(
                   padding:
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'Symptoms',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
@@ -72,23 +108,25 @@ class _AboutPageState extends State<AboutPage> {
                     "Signs of dyslexia can be difficult to recognize before your child enters school, but some early clues may indicate a problem. "
                     "Once your child reaches school age, your child's teacher may be the first to notice a problem. Severity varies, but the condition "
                     "often becomes apparent as a child starts learning to read.",
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: fontSize),
                   ),
                 ),
                 Container(
-                  child: Image.asset("assets/symp.png"),
-                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(15),
+                  child: new ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: Image.asset('assets/symp.png')),
                 ),
                 Container(
                   padding:
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'Before school',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -105,7 +143,7 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Problems remembering or naming letters, numbers and colors\n"
                     "   • Difficulty learning nursery rhymes or playing rhyming games",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSize,
                     ),
                   ),
                 ),
@@ -114,11 +152,11 @@ class _AboutPageState extends State<AboutPage> {
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'School age',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -138,7 +176,7 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Spending an unusually long time completing tasks that involve reading or writing\n"
                     "   • Avoiding activities that involve reading",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSize,
                     ),
                   ),
                 ),
@@ -147,11 +185,11 @@ class _AboutPageState extends State<AboutPage> {
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'Teens and adults',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -175,7 +213,7 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Difficulty memorizing\n"
                     "   • Difficulty doing math problems",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSize,
                     ),
                   ),
                 ),
@@ -184,7 +222,7 @@ class _AboutPageState extends State<AboutPage> {
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'Causes and Risk factors',
                     style: TextStyle(
@@ -205,20 +243,22 @@ class _AboutPageState extends State<AboutPage> {
                     "   • Exposure during pregnancy to nicotine, drugs, alcohol or infection that may alter brain development in the fetus\n"
                     "   • Individual differences in the parts of the brain that enable reading",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSize,
                     ),
                   ),
                 ),
                 Container(
-                  child: Image.asset("assets/dys2.png"),
-                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(15),
+                  child: new ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: Image.asset('assets/dys2.png')),
                 ),
                 Container(
                   padding:
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'Complications',
                     style: TextStyle(
@@ -243,7 +283,7 @@ class _AboutPageState extends State<AboutPage> {
                     "behavior, which can make dyslexia harder to treat.",
                     // textAlign: TextAlign.justify,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSize,
                     ),
                   ),
                 ),
@@ -252,7 +292,7 @@ class _AboutPageState extends State<AboutPage> {
                       const EdgeInsets.only(top: 5.0, left: 12.0, right: 12.0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.greenAccent[100]),
+                      color: Colors.greenAccent),
                   child: Text(
                     'Treatment',
                     style: TextStyle(
@@ -273,7 +313,7 @@ class _AboutPageState extends State<AboutPage> {
                     "The average accuracy in the statistic section of the application gives an insight to the user "
                     "to decide on how much effort he/she has to put in the future to get better.",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSize,
                     ),
                   ),
                 ),

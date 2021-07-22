@@ -5,6 +5,9 @@ class ChatDetails {
   String lastMessage;
   Timestamp lastMessageOn;
   bool blocked;
+  int newMessagesCount;
+  String blockerUid;
+  String lastAuthorUid;
   List<String> participantsEmail = [];
 
   ChatDetails({
@@ -13,6 +16,9 @@ class ChatDetails {
     this.lastMessageOn,
     this.participantsEmail,
     this.blocked,
+    this.blockerUid,
+    this.lastAuthorUid,
+    this.newMessagesCount,
   });
 
   ChatDetails.fromJson(DocumentSnapshot doc) {
@@ -23,6 +29,9 @@ class ChatDetails {
     for (var p in data["participantsEmail"]) {
       this.participantsEmail.add(p.toString());
     }
+    this.newMessagesCount = data["newMessagesCount"];
     this.blocked = data["blocked"];
+    this.lastAuthorUid = data["lastAuthorUid"];
+    this.blockerUid = data["blockerUid"];
   }
 }

@@ -82,7 +82,7 @@ class LoginState extends State<Login> {
         if (status == "success") {
           bool emailVerified = FirebaseAuth.instance.currentUser.emailVerified;
 
-          if (emailVerified) {
+          if (!emailVerified) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -118,6 +118,24 @@ class LoginState extends State<Login> {
 
   double width, height;
 
+  String errorMessage() {
+    switch (status) {
+      case "success":
+        return "success";
+      case "Signing In...":
+        return "Signing In...";
+
+      case "user-not-found":
+        return "No user found for entered email..!!!";
+      case "invalid-email":
+        return "Invalid Email";
+      case "wrong-password":
+        return "Please enter correct password..!!";
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
@@ -127,8 +145,8 @@ class LoginState extends State<Login> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            "https://i.pinimg.com/originals/e3/e5/b1/e3e5b121a4a6d008971cccbd3088ef01.jpg",
+          Image.asset(
+            "assets/login.jpg",
             fit: BoxFit.fill,
             height: height,
             width: width,
@@ -298,9 +316,11 @@ class LoginState extends State<Login> {
             width: width,
             child: Center(
               child: Text(
-                status,
+                errorMessage(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                    backgroundColor:
+                        (status == " " ? Colors.transparent : Colors.white),
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                     color: (status == "success" || status == "Signing in..."

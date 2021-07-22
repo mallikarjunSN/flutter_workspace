@@ -20,7 +20,7 @@ class ReadingWord {
     this.level = data["level"];
     this.syllables = data["syllables"];
     this.syllablesPron = data["syllablesPron"];
-    this.lastAccuracy = data["lastAccuracy"];
+    this.lastAccuracy = data["lastAccuracy"].toDouble();
     this.lastAttemptOn = (data["lastAttemptOn"] != null
         ? DateTime.tryParse(data["lastAttemptOn"])
         : null);

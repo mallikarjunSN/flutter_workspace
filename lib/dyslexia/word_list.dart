@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/common/tts_settings.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/dyslexia/reading_page.dart';
-import 'package:hello/dyslexia/speak.dart';
 import 'package:hello/dyslexia/typing.dart';
 import 'package:hello/model/words_model.dart';
 import 'package:hello/services/db_service.dart';
@@ -208,11 +207,6 @@ class _WordListState extends State<WordList> {
                                                     0.3,
                                                 child: LinearProgressIndicator(
                                                   value: lac / 100.0,
-                                                  backgroundColor: Colors.blue
-                                                      .withOpacity(0.1),
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation(
-                                                          Colors.white),
                                                 ),
                                               ),
                                             ],

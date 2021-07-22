@@ -1,11 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hello/auth/authentication.dart';
 import 'package:hello/common/report_issues.dart';
+import 'package:hello/common/update_profile.dart';
+import 'package:hello/common_home.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/custom_widgets/toggle_botton.dart';
 import 'package:hello/login.dart';
 import 'package:hello/provider_manager/theme_manager.dart';
+import 'package:hello/services/string_service.dart';
+import 'package:hello/services/user_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,13 +18,9 @@ class MyDrawer extends StatefulWidget {
   MyDrawer({
     key,
     @required this.current,
-    @required this.fullName,
   }) : super(key: key);
 
   final String current;
-
-  final String fullName;
-
   @override
   _MyDrawerState createState() => _MyDrawerState();
 }
@@ -89,7 +90,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       await AuthService().signOut().then((value) => (value ==
                               "success"
                           ? Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (context) => Login()))
+                              MaterialPageRoute(builder: (context) => CommonHome()))
                           : print("some error in logging out")));
                     },
                     child: Text(
@@ -141,11 +142,22 @@ class _MyDrawerState extends State<MyDrawer> {
                         width: 70,
                       ),
                       SizedBox(
-                        width: 50,
+                        width: 10,
                       ),
-                      Text(
-                        widget.fullName,
-                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      FutureBuilder<String>(
+                        future: UserService()
+                            .getUserName(FirebaseAuth.instance.currentUser.uid),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            String fullName = snapshot.data;
+                            return Text(
+                              StringService().capitalize(fullName),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 21),
+                            );
+                          } else
+                            return CircularProgressIndicator();
+                        },
                       )
                     ],
                   ),
@@ -156,11 +168,15 @@ class _MyDrawerState extends State<MyDrawer> {
           ListTile(
             leading: FaIcon(FontAwesomeIcons.userAlt),
             title: Text("Update Profile"),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UpdateProfile()));
+            },
           ),
-          ListTile(
-            leading: FaIcon(FontAwesomeIcons.cog),
-            title: Text("Settings"),
-          ),
+          // ListTile(
+          //   leading: FaIcon(FontAwesomeIcons.cog),
+          //   title: Text("Settings"),
+          // ),
           ListTile(
             leading: Icon(Icons.brightness_2),
             title: Row(

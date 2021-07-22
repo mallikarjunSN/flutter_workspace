@@ -8,7 +8,6 @@ import 'package:hello/custom_widgets/anime_button.dart';
 import 'package:hello/model/user_model.dart';
 import 'package:hello/services/user_service.dart';
 import 'package:hello/verify_email.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -91,7 +90,7 @@ class SignupState extends State<Signup> {
         "email": currentUser.email,
         "ioType": ioType,
         "contacts": [],
-        "chatIds": []
+        "chatIds": [],
       }).then((value) {
         currentUser.sendEmailVerification();
       });
@@ -103,8 +102,8 @@ class SignupState extends State<Signup> {
         "fullName": fullName,
         "email": currentUser.email,
         "avgAccuracy": 0.0,
-      }).then((value) {
-        currentUser.sendEmailVerification();
+      }).then((value) async {
+        await currentUser.sendEmailVerification();
       });
     }
     Navigator.pushReplacement(
@@ -252,8 +251,8 @@ class SignupState extends State<Signup> {
           key: _signupKey,
           child: Stack(
             children: [
-              Image.network(
-                "https://i.pinimg.com/originals/fd/e6/03/fde603acbda0f7f1c2cc806890b68476.jpg",
+              Image.asset(
+                "assets/signup_bg.jpg",
                 height: height,
                 width: width,
                 fit: BoxFit.fill,
@@ -327,7 +326,7 @@ class SignupState extends State<Signup> {
                                               color: Colors.white,
                                               padding: EdgeInsets.only(top: 20),
                                               child: Text(
-                                                'If you are person with dyslexia, and want to use app as "Learning Hub" select "Dyslexia User" \n\nOtherwise, Select "Messaging User"',
+                                                'If you are person with dyslexia, and want to use app as "Learning Hub" select "Dyslexia User"\nOtherwise, Select "Messaging User"',
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   fontSize: 16,
@@ -388,7 +387,7 @@ class SignupState extends State<Signup> {
                                                     padding: EdgeInsets.only(
                                                         top: 20),
                                                     child: Text(
-                                                      'If you have blindness, and prefer Voice input and out, select "Voice I/O" \n\nOtherwise, Select "Text I/O"',
+                                                      'If you have blindness, and prefer Voice input and out, select "Voice I/O" \nOtherwise, Select "Text I/O"',
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: TextStyle(

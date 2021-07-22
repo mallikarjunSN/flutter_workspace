@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hello/messaging/messages_ui.dart';
 
 class ChatService {
@@ -14,12 +15,40 @@ class ChatService {
         .snapshots();
   }
 
+  Future<void> unBlock(String chatId) async {
+    await _chatsReference.doc(chatId).update({
+      "blocked": false,
+      "blockerUid": null,
+    });
+  }
+
+  Future<void> block(String chatId) async {
+    await _chatsReference.doc(chatId).update({
+      "blocked": true,
+      "blockerUid": FirebaseAuth.instance.currentUser.uid,
+    });
+  }
+
+  Stream<DocumentSnapshot> getChatDetailsAsStream(String chatId) {
+    return _chatsReference.doc(chatId).snapshots();
+  }
+
+  Future<void> markAsRead(String chatId) async {
+    await _chatsReference.doc(chatId).update({
+      "newMessagesCount": 0,
+      "lastAuthorUid": FirebaseAuth.instance.currentUser.uid,
+    });
+  }
+
   Future<String> addNewChat(List<String> partcipantsEmail) async {
     String chatId = await _chatsReference.add({
       "blocked": false,
       "participantsEmail": partcipantsEmail,
       "lastMessage": null,
-      "lastMessageOn": null
+      "lastMessageOn": null,
+      "newMessagesCount": 0,
+      "blockerUid": null,
+      "lastAuthorUid": null,
     }).then((value) => value.id);
 
     return chatId;
@@ -39,6 +68,13 @@ class ChatService {
       "content": message.content,
       "time": message.time,
       "status": message.status,
+    }).then((value) {
+      _chatsReference.doc(chatId).update({
+        "newMessagesCount": FieldValue.increment(1),
+        "lastMessage": message.content,
+        "lastMessageOn": message.time,
+        "lastAuthorUid": message.authorUid,
+      });
     });
   }
 

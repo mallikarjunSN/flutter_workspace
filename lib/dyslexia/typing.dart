@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -30,6 +29,8 @@ class _TypingPageState extends State<TypingPage> {
     initializeColors();
     shuffledWord = shuffle();
   }
+
+  double begin = 0.0, end = 50.0;
 
   List<bool> matchStatus = [];
 
@@ -206,11 +207,14 @@ class _TypingPageState extends State<TypingPage> {
                 ],
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     typedWord,
                     style: TextStyle(fontSize: 24, color: Colors.cyan),
+                  ),
+                  SizedBox(
+                    width: 15,
                   ),
                   DragTarget<String>(
                     onAcceptWithDetails: (details) {
@@ -244,7 +248,29 @@ class _TypingPageState extends State<TypingPage> {
                       }
                     },
                   ),
-                  Icon(Icons.turned_in)
+                  TweenAnimationBuilder<double>(
+                      tween: Tween(begin: begin, end: end),
+                      duration: Duration(milliseconds: 1000),
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(value, value),
+                          child: child,
+                        );
+                      },
+                      onEnd: () {
+                        if (typedWord.length < 1) {
+                          setState(() {
+                            double temp = begin;
+                            begin = end;
+                            end = temp;
+                          });
+                        }
+                      },
+                      child: Image.asset(
+                        "assets/pointer.png",
+                        height: 50,
+                        width: 50,
+                      ))
                 ],
               ),
               Wrap(

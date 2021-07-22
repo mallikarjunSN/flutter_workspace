@@ -40,6 +40,7 @@ class MessagingUser {
   String uid;
   String fullName;
   String email;
+  String ioType;
   List<String> contacts = [];
   List<String> chatIds = [];
 
@@ -49,6 +50,7 @@ class MessagingUser {
     this.email,
     this.contacts,
     this.chatIds,
+    this.ioType,
   });
 
   MessagingUser.fromJson(DocumentSnapshot doc) {
@@ -62,6 +64,7 @@ class MessagingUser {
     for (var item in data["chatIds"]) {
       this.chatIds.add(item.toString().trim());
     }
+    this.ioType = data["ioType"];
   }
 }
 

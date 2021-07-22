@@ -12,6 +12,45 @@ class UserService {
     _dUserCollection = FirebaseFirestore.instance.collection("dyslexiaUsers");
   }
 
+  Stream<DocumentSnapshot> getDyslexiUserName() {
+    return _dUserCollection
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .snapshots();
+  }
+
+  Future<void> updateProfile(String uid, String fullName) async {
+    await _mUserCollection.doc(uid).get().then((value) async {
+      if (value.exists) {
+        value.reference.update({"fullName": fullName});
+      } else {
+        await _dUserCollection.doc(uid).get().then((value) {
+          value.reference.update({"fullName": fullName});
+        });
+      }
+    });
+  }
+
+  Future<String> getUserName(String uid) async {
+    Map<String, dynamic> data;
+    String fullName;
+    await _mUserCollection.doc(uid).get().then((value) async {
+      if (value.exists) {
+        data = value.data();
+        fullName = data["fullName"];
+      } else {
+        await _dUserCollection.doc(uid).get().then((value) {
+          data = value.data();
+          fullName = data["fullName"];
+        });
+      }
+    });
+    return fullName;
+  }
+
+  Future<DocumentSnapshot> getMessagingUser(String uid) async {
+    return await _mUserCollection.doc(uid).get();
+  }
+
   Future<MessagingUser> getMessagingUserById(String uid) async {
     DocumentSnapshot doc = await _mUserCollection.doc(uid).get();
     return MessagingUser.fromJson(doc);

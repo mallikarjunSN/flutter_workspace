@@ -317,8 +317,6 @@ class _LevelIconState extends State<LevelIcon> {
     return str[0].toUpperCase() + str.substring(1);
   }
 
-  Future<List<int>> getExerxiseStatus() {}
-
   @override
   Widget build(BuildContext context) {
     table = (widget.type.toLowerCase() == "reading"

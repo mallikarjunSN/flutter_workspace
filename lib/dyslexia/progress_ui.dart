@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hello/custom_widgets/cool_color.dart';
@@ -55,7 +53,9 @@ class _ProgressState extends State<ProgressUI> {
       data.add(FlSpot((i).toDouble(), (totalAccuracy / i)));
       i++;
     }
-    averageAccuracy = totalAccuracy / (i - 1);
+    if (i != 1) {
+      averageAccuracy = totalAccuracy / (i - 1);
+    }
     return data;
   }
 
@@ -110,10 +110,10 @@ class _ProgressState extends State<ProgressUI> {
                     left: 0,
                     right: 0,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          height: 300,
+                          height: height * .4,
                           child: Container(
                             padding: EdgeInsets.only(
                                 top: 20, bottom: 20, right: 10, left: 5),
@@ -250,73 +250,74 @@ class _ProgressState extends State<ProgressUI> {
                                 ),
                               );
                             }).toList()),
+                        Container(
+                          padding: EdgeInsets.all(30),
+                          child: (progressData.length == 0
+                              ? Text(
+                                  "You have not attempted any exercise till now, start now",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                  ),
+                                )
+                              : Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Total words attempted",
+                                      style: TextStyle(fontSize: 18),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Text(
+                                      progressData.length.toString(),
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Divider(
+                                      thickness: 1.5,
+                                    ),
+                                    Text(
+                                      "Average Accuracy",
+                                      style: TextStyle(fontSize: 18),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(
+                                      height: 70,
+                                      width: 70,
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        alignment: Alignment.center,
+                                        children: [
+                                          CircularProgressIndicator(
+                                            value: (averageAccuracy != null
+                                                ? averageAccuracy / 100.0
+                                                : 0.0),
+                                            backgroundColor:
+                                                Colors.cyan.withOpacity(0.25),
+                                            strokeWidth: 10,
+                                          ),
+                                          Center(
+                                              child: Text(
+                                            (averageAccuracy != null
+                                                ? "${averageAccuracy.toStringAsFixed(1)} %"
+                                                : "0.0 %"),
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                            textAlign: TextAlign.center,
+                                          ))
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                )),
+                        ),
                       ],
                     ),
                   ),
-                  Positioned(
-                      bottom: 0,
-                      width: width,
-                      child: Container(
-                        padding: EdgeInsets.all(30),
-                        child: (progressData.length == 0
-                            ? Text(
-                                "You have not attempted any exercise till now, start now",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                ),
-                              )
-                            : Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Total words attempted",
-                                    style: TextStyle(fontSize: 18),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    progressData.length.toString(),
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Divider(
-                                    thickness: 1.5,
-                                  ),
-                                  Text(
-                                    "Average Accuracy",
-                                    style: TextStyle(fontSize: 18),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  SizedBox(
-                                    height: 70,
-                                    width: 70,
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      alignment: Alignment.center,
-                                      children: [
-                                        CircularProgressIndicator(
-                                          value: averageAccuracy / 100.0,
-                                          backgroundColor:
-                                              Colors.cyan.withOpacity(0.25),
-                                          strokeWidth: 10,
-                                        ),
-                                        Center(
-                                            child: Text(
-                                          "${averageAccuracy.toStringAsFixed(1)} %",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
-                                          textAlign: TextAlign.center,
-                                        ))
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              )),
-                      ))
                 ],
               );
             } else if (snapshot.hasError) {

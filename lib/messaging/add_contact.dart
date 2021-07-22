@@ -34,32 +34,19 @@ class _AddContactPageState extends State<AddContactPage> {
 
   void _search(MessagingUser mUser) {
     if (!validEmail()) {
-      setState(() {
-        result = Text(
-          "Invalid email address..!!",
-          textAlign: TextAlign.center,
-        );
-      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Invalid email address")));
     } else if (email == FirebaseAuth.instance.currentUser.email) {
-      setState(() {
-        result = Text(
-          "You cannot add your own mail address..!!",
-          textAlign: TextAlign.center,
-        );
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("You cannot add your own mail address")));
     } else {
       setState(() {
         searching = true;
       });
 
       if (mUser.contacts.contains(email)) {
-        setState(() {
-          searching = false;
-          result = Text(
-            "You already have a chat for the Entered email...!!",
-            textAlign: TextAlign.center,
-          );
-        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("You already have a chat for the Entered email")));
       } else {
         usersCollection.where("email", isEqualTo: email).get().then((value) {
           setState(() {
@@ -71,7 +58,7 @@ class _AddContactPageState extends State<AddContactPage> {
               result = Column(
                 children: [
                   Text(
-                    "results",
+                    "Results\n",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -79,19 +66,19 @@ class _AddContactPageState extends State<AddContactPage> {
                     height: 5,
                   ),
                   Text(
-                    "Full Name: ${searchData['fullName']}\nEmail :  ${searchData['email']}",
+                    "Full Name\t:${searchData['fullName']}\nEmail\t:${searchData['email']}",
                     textAlign: TextAlign.center,
                   ),
                 ],
               );
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      "User found with name as ${searchData['fullName']}")));
             });
           } else
-            setState(() {
-              result = Text(
-                "No user available, please check the email address you have entered..!!!",
-                textAlign: TextAlign.center,
-              );
-            });
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    "No user available, please check the email address you have entered")));
         });
       }
     }
@@ -104,20 +91,15 @@ class _AddContactPageState extends State<AddContactPage> {
       });
 
       if (mUser.contacts.contains(email)) {
-        setState(() {
-          result = Text(
-            "You already have a chat for the Entered email ..!!",
-            textAlign: TextAlign.center,
-          );
-        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("You already have a chat for the Entered email.")));
       } else
         await ChatService()
             .addNewChat([FirebaseAuth.instance.currentUser.email, email]).then(
                 (String cid) {
           UserService().updateContactsChatIds(mUser, cid, email).then((status) {
-            setState(() {
-              result = Text("Contact added successfully");
-            });
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Contact Added successfully successfully.")));
           });
         });
     }
@@ -149,6 +131,7 @@ class _AddContactPageState extends State<AddContactPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: "enter email address",
                       prefixIcon: Icon(Icons.alternate_email_outlined),
@@ -184,7 +167,7 @@ class _AddContactPageState extends State<AddContactPage> {
                       ),
                       Semantics(
                         label: "Search Contact",
-                        onTapHint: "search new contact",
+                        onTapHint: "search new contact for entered email",
                         button: true,
                         child: DialogButton(
                           icon: Icons.search,

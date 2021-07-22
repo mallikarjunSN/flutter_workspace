@@ -112,8 +112,8 @@ class _SpeakDemoState extends State<SpeakDemo> {
               icon: SizedBox(
                   height: 70,
                   width: 70,
-                  child: Image.network(
-                    "https://icon-library.com/images/pronunciation-icon/pronunciation-icon-28.jpg",
+                  child: Image.asset(
+                    "assets/pronunciation.jpg",
                     fit: BoxFit.contain,
                   )),
               onPressed: () {

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:hello/custom_widgets/cool_color.dart';
 import 'package:hello/custom_widgets/my_drawer.dart';
 import 'package:hello/messaging/add_contact.dart';
 import 'package:hello/messaging/messages_ui.dart';
@@ -57,7 +58,6 @@ class _MessagingHomeState extends State<MessagingHome> {
     return Scaffold(
       drawer: MyDrawer(
         current: context.widget.toString(),
-        fullName: "Praveen Kumar",
       ),
       // backgroundColor: Color.fromRGBO(50, 70, 78, 1.0),
       appBar: AppBar(
@@ -65,6 +65,7 @@ class _MessagingHomeState extends State<MessagingHome> {
         // backgroundColor: Color.fromRGBO(7, 50, 78, 1.0),
       ),
       floatingActionButton: Semantics(
+        onTapHint: "add new contact",
         child: FloatingActionButton(
           tooltip: "Add new contact",
           child: Icon(Icons.person_add_alt_1_sharp),
@@ -141,8 +142,8 @@ class _ChatTileState extends State<ChatTile> {
             backgroundColor: Colors.transparent,
             child: Semantics(
               image: true,
-              onTapHint: "close",
-              hint: "viewing display picture of $contactName",
+              onTapHint: "close.",
+              hint: "viewing display picture of $contactName .",
               excludeSemantics: true,
               onTap: () {
                 Navigator.pop(context);
@@ -180,9 +181,19 @@ class _ChatTileState extends State<ChatTile> {
 
   @override
   Widget build(BuildContext context) {
+    String lastMessage;
+    String lastMessageOn;
+    int newMessagesCount;
+
+    if (widget.cd.lastMessageOn != null) {
+      lastMessage = widget.cd.lastMessage;
+      lastMessageOn = StringService().getTimeString(widget.cd.lastMessageOn);
+    } else {
+      lastMessage = "Start messaging";
+    }
     return Semantics(
-      label: "with $contactName",
-      onTapHint: "view chat or send new messages",
+      label: "with $contactName .",
+      onTapHint: "view chat or send new messages.",
       child: Container(
         width: double.infinity,
         child: Column(
@@ -222,44 +233,71 @@ class _ChatTileState extends State<ChatTile> {
                 future: ChatService().getRecentMessage(widget.cd.chatId),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasData) {
-                    print(snapshot.data.docs.length);
-                    var data;
-                    String message;
-                    String lastMessageOn;
-                    if (snapshot.data.docs.length != 0) {
-                      data = snapshot.data.docs.first.data()
-                          as Map<String, dynamic>;
-                      message = data["content"];
-                      lastMessageOn =
-                          StringService().getTimeString(data["time"]);
-                    } else {
-                      message = "Start messaging";
-                    }
+                    Map<String, dynamic> data;
 
+                    DateTime time = (widget.cd.lastMessageOn == null
+                        ? null
+                        : widget.cd.lastMessageOn.toDate());
+                    bool lastSent;
+                    if (snapshot.data.docs.length == 0) {
+                      lastSent = true;
+                    } else {
+                      data = snapshot.data.docs.first.data();
+                      lastSent = (data["authorUid"] ==
+                          FirebaseAuth.instance.currentUser.uid);
+                      newMessagesCount = widget.cd.newMessagesCount;
+                    }
                     return Semantics(
-                      hint: "last message $message",
+                      hint: "last message $lastMessage.",
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            StringService().formatLongMessage(message) ??
-                                "Start messaging",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.cyanAccent,
+                          Semantics(
+                            excludeSemantics: true,
+                            child: Text(
+                              StringService().formatLongMessage(lastMessage) ??
+                                  "Start messaging",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.cyan,
+                              ),
                             ),
                           ),
                           Semantics(
-                            label:
-                                "last message on ${DateTime.now().toString()}",
+                            label: (time == null
+                                ? "new chat ."
+                                : "last message on ${(time.hour) % 12} ${time.minute}."),
                             excludeSemantics: true,
-                            child: Text(
-                              lastMessageOn == null
-                                  ? "new chat"
-                                  : lastMessageOn,
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                (lastSent || newMessagesCount == 0
+                                    ? SizedBox()
+                                    : Container(
+                                        padding: EdgeInsets.all(7),
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: CoolColor.primaryColor),
+                                        child: Text(
+                                          newMessagesCount.toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      )),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Text(
+                                  lastMessageOn == null
+                                      ? "new chat"
+                                      : lastMessageOn,
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         ],
@@ -280,8 +318,9 @@ class _ChatTileState extends State<ChatTile> {
                           ? widget.cd.participantsEmail[1]
                           : widget.cd.participantsEmail[0])),
                   builder: (context, snapshot) {
+                    MessagingUser messagingUser = snapshot.data;
                     if (snapshot.hasData) {
-                      contactName = snapshot.data.fullName;
+                      contactName = messagingUser.fullName;
                       return Text(
                         StringService().capitalize(contactName),
                         textAlign: TextAlign.left,
