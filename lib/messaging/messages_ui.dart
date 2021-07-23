@@ -69,6 +69,7 @@ class _MessagesUIState extends State<MessagesUI> {
   @override
   void initState() {
     super.initState();
+    _ttsService = TtsService();
     initSpeechState();
   }
 
@@ -286,7 +287,6 @@ class _MessagesUIState extends State<MessagesUI> {
   TtsService _ttsService;
 
   Future<void> inputMessage() async {
-    _ttsService = TtsService();
     if (voiceIo) {
       await _ttsService.speak("speak message after mic beep");
     }
@@ -336,31 +336,33 @@ class _MessagesUIState extends State<MessagesUI> {
         ],
         centerTitle: true,
       ),
-      floatingActionButton: FutureBuilder<DocumentSnapshot>(
-        future: UserService()
-            .getMessagingUser(FirebaseAuth.instance.currentUser.uid),
-        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (snapshot.hasData) {
-            MessagingUser mUser = MessagingUser.fromJson(snapshot.data);
-            if (mUser.ioType == IOType.VOICE_IO) {
-              voiceIo = true;
-              return Semantics(
-                  label:
-                      "input message button. double tap to input new message in voice format",
-                  excludeSemantics: true,
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      inputMessage();
-                    },
-                    child: Icon(Icons.mic),
-                  ));
-            } else {
-              return SizedBox();
-            }
-          } else
-            return SizedBox();
-        },
-      ),
+      floatingActionButton: (blocked
+          ? SizedBox()
+          : FutureBuilder<DocumentSnapshot>(
+              future: UserService()
+                  .getMessagingUser(FirebaseAuth.instance.currentUser.uid),
+              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  MessagingUser mUser = MessagingUser.fromJson(snapshot.data);
+                  if (mUser.ioType == IOType.VOICE_IO) {
+                    voiceIo = true;
+                    return Semantics(
+                        label:
+                            "input message button. double tap to input new message in voice format",
+                        excludeSemantics: true,
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            inputMessage();
+                          },
+                          child: Icon(Icons.mic),
+                        ));
+                  } else {
+                    return SizedBox();
+                  }
+                } else
+                  return SizedBox();
+              },
+            )),
       body: Center(
         child: StreamBuilder(
           stream: ChatService().getChatDetailsAsStream(widget.chatId),

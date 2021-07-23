@@ -65,9 +65,10 @@ class _MessagingHomeState extends State<MessagingHome> {
         // backgroundColor: Color.fromRGBO(7, 50, 78, 1.0),
       ),
       floatingActionButton: Semantics(
-        onTapHint: "add new contact",
+        label:
+            "Add new contact button. double tap to search and add new contact",
+        excludeSemantics: true,
         child: FloatingActionButton(
-          tooltip: "Add new contact",
           child: Icon(Icons.person_add_alt_1_sharp),
           onPressed: _addContact,
         ),

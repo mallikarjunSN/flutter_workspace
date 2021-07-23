@@ -87,7 +87,7 @@ class _AddContactPageState extends State<AddContactPage> {
   Future<void> _addContact(MessagingUser mUser) async {
     if (searchData != null && validEmail()) {
       setState(() {
-        result = CircularProgressIndicator();
+        searching = true;
       });
 
       if (mUser.contacts.contains(email)) {
@@ -97,6 +97,9 @@ class _AddContactPageState extends State<AddContactPage> {
         await ChatService()
             .addNewChat([FirebaseAuth.instance.currentUser.email, email]).then(
                 (String cid) {
+          setState(() {
+            searching = false;
+          });
           UserService().updateContactsChatIds(mUser, cid, email).then((status) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text("Contact Added successfully successfully.")));
