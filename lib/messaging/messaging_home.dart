@@ -192,158 +192,160 @@ class _ChatTileState extends State<ChatTile> {
     } else {
       lastMessage = "Start messaging";
     }
-    return Semantics(
-      label: "with $contactName .",
-      onTapHint: "view chat or send new messages.",
-      child: Container(
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ListTile(
-              tileColor: Colors.black.withOpacity(0.05),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MessagesUI(
-                      chatId: widget.cd.chatId,
-                      contactName: StringService().capitalize(contactName),
-                    ),
-                  ),
-                );
-              },
-              contentPadding:
-                  EdgeInsets.only(bottom: 2.5, top: 2.5, left: 5, right: 5),
-              leading: FloatingActionButton(
-                tooltip: "view display picture of $contactName",
-                heroTag: null,
-                child: Container(
-                  padding: EdgeInsets.all(1),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: Image.asset(
-                    "assets/user.png",
-                    fit: BoxFit.cover,
+    return Container(
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ListTile(
+            tileColor: Colors.black.withOpacity(0.05),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => MessagesUI(
+                    chatId: widget.cd.chatId,
+                    contactName: StringService().capitalize(contactName),
                   ),
                 ),
-                onPressed: showDp,
+              );
+            },
+            contentPadding:
+                EdgeInsets.only(bottom: 2.5, top: 2.5, left: 5, right: 5),
+            leading: FloatingActionButton(
+              tooltip: "view display picture of $contactName",
+              heroTag: null,
+              child: Container(
+                padding: EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                child: Image.asset(
+                  "assets/user.png",
+                  fit: BoxFit.cover,
+                ),
               ),
-              subtitle: FutureBuilder(
-                future: ChatService().getRecentMessage(widget.cd.chatId),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasData) {
-                    Map<String, dynamic> data;
+              onPressed: showDp,
+            ),
+            subtitle: FutureBuilder(
+              future: ChatService().getRecentMessage(widget.cd.chatId),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  Map<String, dynamic> data;
 
-                    DateTime time = (widget.cd.lastMessageOn == null
-                        ? null
-                        : widget.cd.lastMessageOn.toDate());
-                    bool lastSent;
-                    if (snapshot.data.docs.length == 0) {
-                      lastSent = true;
-                    } else {
-                      data = snapshot.data.docs.first.data();
-                      lastSent = (data["authorUid"] ==
-                          FirebaseAuth.instance.currentUser.uid);
-                      newMessagesCount = widget.cd.newMessagesCount;
-                    }
-                    return Semantics(
-                      hint: "last message $lastMessage.",
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Semantics(
-                            excludeSemantics: true,
-                            child: Text(
-                              StringService().formatLongMessage(lastMessage) ??
-                                  "Start messaging",
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.cyan,
-                              ),
+                  DateTime time = (widget.cd.lastMessageOn == null
+                      ? null
+                      : widget.cd.lastMessageOn.toDate());
+                  bool lastSent;
+                  if (snapshot.data.docs.length == 0) {
+                    lastSent = true;
+                  } else {
+                    data = snapshot.data.docs.first.data();
+                    lastSent = (data["authorUid"] ==
+                        FirebaseAuth.instance.currentUser.uid);
+                    newMessagesCount = widget.cd.newMessagesCount;
+                  }
+                  return Semantics(
+                    hint: "last message $lastMessage",
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Semantics(
+                          excludeSemantics: true,
+                          child: Text(
+                            StringService().formatLongMessage(lastMessage) ??
+                                "Start messaging",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.cyan,
                             ),
                           ),
-                          Semantics(
-                            label: (time == null
-                                ? "new chat ."
-                                : "last message on ${(time.hour) % 12} ${time.minute}."),
-                            excludeSemantics: true,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                (lastSent || newMessagesCount == 0
-                                    ? SizedBox()
-                                    : Container(
-                                        padding: EdgeInsets.all(7),
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: CoolColor.primaryColor),
-                                        child: Text(
-                                          newMessagesCount.toString(),
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      )),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Text(
-                                  lastMessageOn == null
-                                      ? "new chat"
-                                      : lastMessageOn,
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            (lastSent || newMessagesCount == 0
+                                ? SizedBox()
+                                : Container(
+                                    padding: EdgeInsets.all(7),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: CoolColor.primaryColor),
+                                    child: Semantics(
+                                      label: "$newMessagesCount new messages.",
+                                      excludeSemantics: true,
+                                      child: Text(
+                                        newMessagesCount.toString(),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  )),
+                            SizedBox(
+                              width: 20,
                             ),
-                          )
-                        ],
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text("Error");
-                  }
-                  return Text("Loading...");
-                },
-              ),
-              title: Semantics(
-                excludeSemantics: true,
-                child: FutureBuilder<MessagingUser>(
-                  future: UserService().getMessagingUserByEmail(
-                      (widget.cd.participantsEmail[0] ==
-                              FirebaseAuth.instance.currentUser.email
-                          ? widget.cd.participantsEmail[1]
-                          : widget.cd.participantsEmail[0])),
-                  builder: (context, snapshot) {
-                    MessagingUser messagingUser = snapshot.data;
-                    if (snapshot.hasData) {
-                      contactName = messagingUser.fullName;
-                      return Text(
-                        StringService().capitalize(contactName),
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text("Error");
-                    } else
-                      return Text("Loading..");
-                  },
-                ),
-              ),
+                            Semantics(
+                              label: (lastMessageOn == null
+                                  ? "new chat."
+                                  : "last message on $lastMessageOn."),
+                              excludeSemantics: true,
+                              child: Text(
+                                lastMessageOn == null
+                                    ? "new chat"
+                                    : lastMessageOn,
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("Error");
+                }
+                return Text("Loading...");
+              },
             ),
-            Divider(
-              indent: 75,
-              endIndent: 60,
-              thickness: 1.5,
-              height: 5,
-            )
-          ],
-        ),
+            title: FutureBuilder<MessagingUser>(
+              future: UserService().getMessagingUserByEmail(
+                  (widget.cd.participantsEmail[0] ==
+                          FirebaseAuth.instance.currentUser.email
+                      ? widget.cd.participantsEmail[1]
+                      : widget.cd.participantsEmail[0])),
+              builder: (context, snapshot) {
+                MessagingUser messagingUser = snapshot.data;
+                if (snapshot.hasData) {
+                  contactName = messagingUser.fullName;
+                  return Semantics(
+                    label: "with $contactName .",
+                    onTapHint: "view chat or send new messages.",
+                    excludeSemantics: true,
+                    child: Text(
+                      StringService().capitalize(contactName),
+                      textAlign: TextAlign.left,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("Error");
+                } else
+                  return Text("Loading..");
+              },
+            ),
+          ),
+          Divider(
+            indent: 75,
+            endIndent: 60,
+            thickness: 1.5,
+            height: 5,
+          )
+        ],
       ),
     );
   }

@@ -39,14 +39,16 @@ class _SpeakDemoState extends State<SpeakDemo> {
       highlightPart = true;
     });
     index = 0;
-    for (var word in phonemes) {
-      _ttsService.setSpeechRate(0.6);
-      if (word.isNotEmpty) {
-        await _ttsService.speak(word);
+    if (phonemes.length >1) {
+      for (var word in phonemes) {
+        _ttsService.setSpeechRate(0.6);
+        if (word.isNotEmpty) {
+          await _ttsService.speak(word);
+        }
+        setState(() {
+          index += 1;
+        });
       }
-      setState(() {
-        index += 1;
-      });
     }
 
     setState(() {

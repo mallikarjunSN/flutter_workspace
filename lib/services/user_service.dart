@@ -47,8 +47,8 @@ class UserService {
     return fullName;
   }
 
-  Future<DocumentSnapshot> getMessagingUser(String uid) async {
-    return await _mUserCollection.doc(uid).get();
+  Stream<DocumentSnapshot> getMessagingUser(String uid) {
+    return _mUserCollection.doc(uid).snapshots();
   }
 
   Future<MessagingUser> getMessagingUserById(String uid) async {

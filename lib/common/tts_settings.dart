@@ -19,6 +19,11 @@ class _TtsSettingsState extends State<TtsSettings> {
   TtsService _ttsService = TtsService();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -34,6 +39,7 @@ class _TtsSettingsState extends State<TtsSettings> {
               speechRate = snapshot.data["speechRate"];
               pitch = snapshot.data["pitch"];
               volume = snapshot.data["volume"];
+              print("$speechRate $pitch $volume");
               return Container(
                 padding: EdgeInsets.all(20),
                 child: Column(

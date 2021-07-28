@@ -80,6 +80,7 @@ class MyAppState extends State<MyApp> {
           home: getHome(),
           theme: (themeManager.isDark ? ThemeData.dark() : ThemeData.light()),
           debugShowCheckedModeBanner: false,
+          // showSemanticsDebugger: true,
         );
       }),
     );

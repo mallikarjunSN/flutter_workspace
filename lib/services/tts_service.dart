@@ -2,9 +2,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TtsService {
-  double speechRate;
-  double pitch;
-  double volume;
+  double speechRate = 0.7;
+  double pitch = 1.0;
+  double volume = 0.85;
 
   FlutterTts _flutterTts;
 
@@ -24,14 +24,13 @@ class TtsService {
     volume = _sharedPreferences.getDouble("volume") ?? volume;
 
     var res = {"speechRate": speechRate, "pitch": pitch, "volume": volume};
-    print(res);
     return res;
   }
 
   Future<void> setPitch(double p) async {
     _sharedPreferences = await SharedPreferences.getInstance();
     await _sharedPreferences.setDouble("pitch", p);
-    print(_sharedPreferences.getDouble("pitch"));
+    // print(_sharedPreferences.getDouble("pitch"));
     _flutterTts.setPitch(p);
   }
 
@@ -43,7 +42,7 @@ class TtsService {
 
   Future<void> setVolume(double v) async {
     _sharedPreferences = await SharedPreferences.getInstance();
-    await _sharedPreferences.setDouble("speechRate", v);
+    await _sharedPreferences.setDouble("volume", v);
     _flutterTts.setVolume(v);
   }
 

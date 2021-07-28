@@ -295,7 +295,7 @@ class _MessagesUIState extends State<MessagesUI> {
 
   int linesCount = 1;
 
-  bool blocked = true;
+  bool blocked = false;
 
   String blockerUid;
 
@@ -336,33 +336,7 @@ class _MessagesUIState extends State<MessagesUI> {
         ],
         centerTitle: true,
       ),
-      floatingActionButton: (blocked
-          ? SizedBox()
-          : FutureBuilder<DocumentSnapshot>(
-              future: UserService()
-                  .getMessagingUser(FirebaseAuth.instance.currentUser.uid),
-              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (snapshot.hasData) {
-                  MessagingUser mUser = MessagingUser.fromJson(snapshot.data);
-                  if (mUser.ioType == IOType.VOICE_IO) {
-                    voiceIo = true;
-                    return Semantics(
-                        label:
-                            "input message button. double tap to input new message in voice format",
-                        excludeSemantics: true,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            inputMessage();
-                          },
-                          child: Icon(Icons.mic),
-                        ));
-                  } else {
-                    return SizedBox();
-                  }
-                } else
-                  return SizedBox();
-              },
-            )),
+      // floatingActionButton: ,
       body: Center(
         child: StreamBuilder(
           stream: ChatService().getChatDetailsAsStream(widget.chatId),
@@ -450,62 +424,184 @@ class _MessagesUIState extends State<MessagesUI> {
                                   ),
                                 )),
                           Positioned(
-                            bottom: 8,
-                            child: SizedBox(
-                              width: (voiceIo
-                                  ? MediaQuery.of(context).size.width * 0.75
-                                  : MediaQuery.of(context).size.width),
-                              child: TextFormField(
-                                keyboardType: TextInputType.multiline,
-                                maxLines: linesCount + 5,
-                                minLines: 1,
-                                controller: textEditingController,
-                                decoration: InputDecoration(
-                                  // prefixIcon: Icon(
-                                  //   Icons.emoji_emotions,
-                                  //   color: Colors.amber,
-                                  // ),
-                                  fillColor: Colors.white,
-                                  contentPadding: EdgeInsets.all(5),
-                                  hintText: "Type your message here",
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(30))),
-                                  suffixIcon: IconButton(
-                                    tooltip: "send",
-                                    icon: Container(
-                                        padding: EdgeInsets.all(5),
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.blue),
-                                        child: Icon(
-                                          Icons.send,
-                                          color: Colors.white,
-                                        )),
-                                    onPressed: () {
-                                      if (message.isNotEmpty) {
-                                        sendMessage();
-                                      } else
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                                "Oops..! can't send an empty message"),
-                                            duration:
-                                                Duration(milliseconds: 1500),
-                                          ),
-                                        );
-                                    },
-                                  ),
-                                ),
-                                onChanged: (val) {
-                                  setState(() {
-                                    message = val;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
+                              bottom: 10,
+                              right: 10,
+                              left: 0,
+                              child: (blocked
+                                  ? SizedBox()
+                                  : StreamBuilder<DocumentSnapshot>(
+                                      stream: UserService().getMessagingUser(
+                                          FirebaseAuth
+                                              .instance.currentUser.uid),
+                                      builder: (context,
+                                          AsyncSnapshot<DocumentSnapshot>
+                                              snapshot) {
+                                        if (snapshot.hasData) {
+                                          MessagingUser mUser =
+                                              MessagingUser.fromJson(
+                                                  snapshot.data);
+                                          if (mUser.ioType == IOType.VOICE_IO) {
+                                            voiceIo = true;
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.75,
+                                                  child: TextFormField(
+                                                    keyboardType:
+                                                        TextInputType.multiline,
+                                                    maxLines: linesCount + 5,
+                                                    minLines: 1,
+                                                    controller:
+                                                        textEditingController,
+                                                    decoration: InputDecoration(
+                                                      // prefixIcon: Icon(
+                                                      //   Icons.emoji_emotions,
+                                                      //   color: Colors.amber,
+                                                      // ),
+                                                      fillColor: Colors.white,
+                                                      contentPadding:
+                                                          EdgeInsets.all(5),
+                                                      hintText:
+                                                          "Type your message here",
+                                                      border: OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          30))),
+                                                      suffixIcon: IconButton(
+                                                        tooltip: "send",
+                                                        icon: Container(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    5),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: Colors
+                                                                        .blue),
+                                                            child: Icon(
+                                                              Icons.send,
+                                                              color:
+                                                                  Colors.white,
+                                                            )),
+                                                        onPressed: () {
+                                                          if (message
+                                                              .isNotEmpty) {
+                                                            sendMessage();
+                                                          } else
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                    "Oops..! can't send an empty message"),
+                                                                duration: Duration(
+                                                                    milliseconds:
+                                                                        1500),
+                                                              ),
+                                                            );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    onChanged: (val) {
+                                                      setState(() {
+                                                        message = val;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                                Semantics(
+                                                    label:
+                                                        "input message button. double tap to input new message in voice format",
+                                                    excludeSemantics: true,
+                                                    child: FloatingActionButton(
+                                                      onPressed: () {
+                                                        inputMessage();
+                                                      },
+                                                      child: Icon(Icons.mic),
+                                                    )),
+                                              ],
+                                            );
+                                          } else {
+                                            return SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.75,
+                                              child: TextFormField(
+                                                keyboardType:
+                                                    TextInputType.multiline,
+                                                maxLines: linesCount + 5,
+                                                minLines: 1,
+                                                controller:
+                                                    textEditingController,
+                                                decoration: InputDecoration(
+                                                  // prefixIcon: Icon(
+                                                  //   Icons.emoji_emotions,
+                                                  //   color: Colors.amber,
+                                                  // ),
+                                                  fillColor: Colors.white,
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  hintText:
+                                                      "Type your message here",
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  30))),
+                                                  suffixIcon: IconButton(
+                                                    tooltip: "send",
+                                                    icon: Container(
+                                                        padding:
+                                                            EdgeInsets.all(5),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                                color: Colors
+                                                                    .blue),
+                                                        child: Icon(
+                                                          Icons.send,
+                                                          color: Colors.white,
+                                                        )),
+                                                    onPressed: () {
+                                                      if (message.isNotEmpty) {
+                                                        sendMessage();
+                                                      } else
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                                "Oops..! can't send an empty message"),
+                                                            duration: Duration(
+                                                                milliseconds:
+                                                                    1500),
+                                                          ),
+                                                        );
+                                                    },
+                                                  ),
+                                                ),
+                                                onChanged: (val) {
+                                                  setState(() {
+                                                    message = val;
+                                                  });
+                                                },
+                                              ),
+                                            );
+                                          }
+                                        } else
+                                          return SizedBox();
+                                      },
+                                    )))
                         ],
                       );
                     } else if (messagesSnapshot.connectionState ==
